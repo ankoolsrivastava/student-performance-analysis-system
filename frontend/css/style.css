@@ -89,3 +89,77 @@ justify-content:center;
 .illustration img{
 width:90%;
 }
+.profile {
+  position: absolute;
+  right: 30px;
+  top: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile img {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+.main{
+margin-left:220px;
+padding:20px;
+min-height:100vh;
+}
+.sidebar{
+position:fixed;
+left:0;
+top:0;
+width:220px;
+height:100vh;
+background:#6a7de3;
+color:white;
+padding-top:20px;
+}
+.sidebar{
+overflow-y:auto;
+}
+.welcome-card{
+display:flex;
+justify-content:space-between;
+align-items:center;
+background:linear-gradient(135deg,#7b8cff,#9f6cff);
+color:white;
+padding:25px;
+border-radius:12px;
+margin-bottom:25px;
+}
+
+.welcome-img{
+width:120px;
+}
+.card{
+flex:1;
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 8px 20px rgba(0,0,0,0.08);
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-5px);
+}
+.clickable{
+cursor:pointer;
+}
+
+.clickable:hover{
+transform:scale(1.03);
+}
+.card.clickable{
+cursor:pointer;
+transition:0.2s;
+}
+
+.card.clickable:hover{
+transform:scale(1.03);
+box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}

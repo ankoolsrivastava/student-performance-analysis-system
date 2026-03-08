@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Weak Students</title>
+
+<style>
+body{
+font-family:Arial;
+background:#f4f6fb;
+padding:30px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid #ddd;
+text-align:left;
+}
+
+th{
+background:#6a7de3;
+color:white;
+}
+
+button{
+margin-bottom:20px;
+padding:8px 14px;
+background:#6a7de3;
+color:white;
+border:none;
+cursor:pointer;
+}
+</style>
+
+</head>
+
+<body>
+
+<button onclick="window.location.href='dashboard.html'">Back</button>
+
+<h2>Weak Students</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Roll No</th>
+<th>Name</th>
+<th>Failed Subjects (Marks)</th>
+</tr>
+</thead>
+
+<tbody id="weakTable"></tbody>
+
+</table>
+
+<script>
+
+async function loadWeakStudents(){
+
+const res = await fetch("http://localhost:5000/api/analysis/weak-students-detail")
+const data = await res.json()
+
+let html = ""
+
+if(data.length === 0){
+
+html = `<tr><td colspan="3">No weak students</td></tr>`
+
+}else{
+
+data.forEach(s => {
+
+html += `
+<tr>
+<td>${s.roll_number}</td>
+<td>${s.name}</td>
+<td>${s.failed_subjects}</td>
+</tr>
+`
+
+})
+
+}
+
+document.getElementById("weakTable").innerHTML = html
+
+}
+
+loadWeakStudents()
+
+</script>
+
+</body>
+</html>

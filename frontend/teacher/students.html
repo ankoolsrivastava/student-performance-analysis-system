@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Students</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:#f3f6fb;
+}
+
+/* Layout */
+
+.layout{
+display:flex;
+min-height:100vh;
+}
+
+/* Sidebar */
+
+.sidebar{
+width:220px;
+background:#6a7de3;
+color:white;
+padding-top:20px;
+}
+
+.sidebar h2{
+text-align:center;
+}
+
+.sidebar a{
+display:block;
+padding:15px 20px;
+color:white;
+text-decoration:none;
+}
+
+.sidebar a:hover{
+background:#5566c9;
+}
+
+/* Main */
+
+.main{
+flex:1;
+padding:30px;
+}
+
+/* Search */
+
+.search-box{
+margin-bottom:20px;
+}
+
+.search-box input{
+padding:10px;
+width:250px;
+border:1px solid #ccc;
+border-radius:5px;
+}
+
+/* Table */
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+th,td{
+padding:12px;
+border-bottom:1px solid #eee;
+}
+
+th{
+background:#6a7de3;
+color:white;
+}
+
+button{
+padding:6px 12px;
+background:#6a7de3;
+color:white;
+border:none;
+cursor:pointer;
+border-radius:4px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="layout">
+
+<div class="sidebar">
+
+<h2>Teacher</h2>
+
+<a href="dashboard.html">Dashboard</a>
+<a href="students.html">Students</a>
+<a href="marks.html">Marks Entry</a>
+<a href="attendance.html">Attendance</a>
+<a href="analysis.html">Performance</a>
+<a href="#" onclick="logout()">Logout</a>
+
+</div>
+
+
+<div class="main">
+
+<h2>Students</h2>
+
+<div class="search-box">
+<input type="text" id="searchInput" placeholder="Search by name or roll number">
+</div>
+
+<table>
+
+<thead>
+<tr>
+<th>Roll No</th>
+<th>Name</th>
+<th>Department</th>
+<th>Year</th>
+<th>Profile</th>
+</tr>
+</thead>
+
+<tbody id="studentTable"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+async function loadStudents(){
+
+const res = await fetch("http://localhost:5000/api/students")
+const data = await res.json()
+
+displayStudents(data)
+
+window.allStudents = data
+
+}
+
+function displayStudents(students){
+
+let html=""
+
+students.forEach(s=>{
+
+html += `
+<tr>
+<td>${s.roll_number}</td>
+<td>${s.name}</td>
+<td>${s.department}</td>
+<td>${s.year}</td>
+<td>
+<button onclick="openProfile(${s.student_id})">
+View
+</button>
+</td>
+</tr>
+`
+
+})
+
+document.getElementById("studentTable").innerHTML = html
+
+}
+
+function openProfile(id){
+
+window.location.href = "student-profile.html?id=" + id
+
+}
+
+document.getElementById("searchInput").addEventListener("keyup",function(){
+
+const keyword = this.value.toLowerCase()
+
+const filtered = window.allStudents.filter(s =>
+s.name.toLowerCase().includes(keyword) ||
+s.roll_number.toLowerCase().includes(keyword)
+)
+
+displayStudents(filtered)
+
+})
+
+function logout(){
+localStorage.removeItem("teacher")
+window.location.href="login.html"
+}
+
+loadStudents()
+
+</script>
+
+</body>
+</html>

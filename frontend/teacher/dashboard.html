@@ -15,12 +15,27 @@ font-family:Arial;
 background:#f3f6fb;
 }
 
+.card.clickable{
+cursor:pointer;
+transition:0.2s;
+}
+
+.card.clickable:hover{
+transform:scale(1.03);
+box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}
+
+/* Layout */
+
+.layout{
+display:flex;
+min-height:100vh;
+}
+
 /* Sidebar */
 
 .sidebar{
-position:fixed;
 width:220px;
-height:100%;
 background:#6a7de3;
 color:white;
 padding-top:20px;
@@ -44,8 +59,25 @@ background:#5566c9;
 /* Main */
 
 .main{
-margin-left:220px;
+flex:1;
 padding:20px;
+}
+
+/* Profile */
+
+.profile{
+position:absolute;
+right:30px;
+top:20px;
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.profile img{
+width:40px;
+height:40px;
+border-radius:50%;
 }
 
 /* Cards */
@@ -96,8 +128,9 @@ border-bottom:1px solid #ddd;
 
 </head>
 
-
 <body>
+
+<div class="layout">
 
 <!-- Sidebar -->
 
@@ -110,6 +143,7 @@ border-bottom:1px solid #ddd;
 <a href="marks.html">Marks Entry</a>
 <a href="attendance.html">Attendance</a>
 <a href="analysis.html">Performance</a>
+<a href="#" onclick="logout()">Logout</a>
 
 </div>
 
@@ -118,7 +152,13 @@ border-bottom:1px solid #ddd;
 
 <div class="main">
 
+<div class="profile">
+<img src="../assets/default-teacher.png">
+<span id="teacherName"></span>
+</div>
+
 <h1 id="welcome">Dashboard</h1>
+
 
 <!-- Stats -->
 
@@ -139,7 +179,7 @@ border-bottom:1px solid #ddd;
 <p id="topAverage">0</p>
 </div>
 
-<div class="card">
+<div class="card clickable" onclick="openWeakStudents()">
 <h3>Weak Students</h3>
 <p id="weakCount">0</p>
 </div>
@@ -151,25 +191,16 @@ border-bottom:1px solid #ddd;
 
 <div class="grid">
 
-<!-- Chart -->
-
 <div class="panel">
-
 <h3>Student Averages</h3>
-
 <canvas id="avgChart"></canvas>
-
 </div>
-
-
-<!-- Top Students -->
 
 <div class="panel">
 
 <h3>Top Students</h3>
 
 <table>
-
 <thead>
 <tr>
 <th>Name</th>
@@ -189,10 +220,9 @@ border-bottom:1px solid #ddd;
 <!-- Subject Chart -->
 
 <div class="panel">
-
 <h3>Subject Performance</h3>
-
 <canvas id="subjectChart"></canvas>
+</div>
 
 </div>
 
@@ -205,10 +235,12 @@ border-bottom:1px solid #ddd;
 
 const teacher = JSON.parse(localStorage.getItem("teacher"))
 
-if(teacher){
-document.getElementById("welcome").innerText =
-"Welcome " + teacher.name
+if(!teacher){
+window.location.href="login.html"
 }
+
+document.getElementById("welcome").innerText = "Welcome " + teacher.name
+document.getElementById("teacherName").innerText = teacher.name
 
 
 /* Load Students */
@@ -216,7 +248,6 @@ document.getElementById("welcome").innerText =
 async function loadStudents(){
 
 const res = await fetch("http://localhost:5000/api/teachers/students")
-
 const data = await res.json()
 
 document.getElementById("totalStudents").innerText = data.length
@@ -231,7 +262,6 @@ loadStudents()
 async function loadSubjects(){
 
 const res = await fetch("http://localhost:5000/api/admin/subjects")
-
 const data = await res.json()
 
 document.getElementById("subjectsCount").innerText = data.length
@@ -246,20 +276,19 @@ loadSubjects()
 async function loadTopStudents(){
 
 const res = await fetch("http://localhost:5000/api/analysis/top-students")
-
 const data = await res.json()
 
-document.getElementById("topAverage").innerText = data[0]?.average_marks || 0
+document.getElementById("topAverage").innerText =
+data[0] ? Number(data[0].average_marks).toFixed(1) : 0
 
 let html=""
 
 data.forEach(s=>{
-
-html+=`<tr>
+html+=`
+<tr>
 <td>${s.name}</td>
-<td>${parseFloat(s.average_marks).toFixed(1)}</td>
+<td>${Number(s.average_marks).toFixed(1)}</td>
 </tr>`
-
 })
 
 document.getElementById("topStudentsTable").innerHTML = html
@@ -274,7 +303,6 @@ loadTopStudents()
 async function loadWeak(){
 
 const res = await fetch("http://localhost:5000/api/analysis/weak-students")
-
 const data = await res.json()
 
 document.getElementById("weakCount").innerText = data.length
@@ -284,22 +312,23 @@ document.getElementById("weakCount").innerText = data.length
 loadWeak()
 
 
+function openWeakStudents(){
+window.location.href="weak-students.html"
+}
+
+
 /* Student Average Chart */
 
 async function loadAvgChart(){
 
 const res = await fetch("http://localhost:5000/api/analysis/averages")
-
 const data = await res.json()
 
 const names = data.map(s=>s.name)
-
 const marks = data.map(s=>s.average_marks)
 
 new Chart(document.getElementById("avgChart"),{
-
 type:"bar",
-
 data:{
 labels:names,
 datasets:[{
@@ -307,7 +336,6 @@ label:"Average Marks",
 data:marks
 }]
 }
-
 })
 
 }
@@ -320,17 +348,13 @@ loadAvgChart()
 async function loadSubjectChart(){
 
 const res = await fetch("http://localhost:5000/api/analysis/subjects")
-
 const data = await res.json()
 
 const names = data.map(s=>s.subject_name)
-
 const marks = data.map(s=>s.average_marks)
 
 new Chart(document.getElementById("subjectChart"),{
-
 type:"bar",
-
 data:{
 labels:names,
 datasets:[{
@@ -338,12 +362,17 @@ label:"Subject Average",
 data:marks
 }]
 }
-
 })
 
 }
 
 loadSubjectChart()
+
+
+function logout(){
+localStorage.removeItem("teacher")
+window.location.href="login.html"
+}
 
 </script>
 

@@ -20,7 +20,7 @@ exports.getStudentById = async (req, res) => {
 
   try {
     const result = await pool.query(
-      "SELECT student_id,name,roll_number,email,department,year FROM students WHERE student_id=$1",
+      "SELECT * FROM students WHERE student_id=$1",
       [id]
     );
 
