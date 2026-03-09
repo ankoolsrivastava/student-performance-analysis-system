@@ -34,6 +34,7 @@ router.get("/", getAllStudents);
 router.get("/:id", getStudentById);
 
 router.post("/", validateStudent, handleValidation, createStudent);
+router.post("/", createStudent);
 
 router.put("/:id", validateStudent, handleValidation, updateStudent);
 

@@ -1,0 +1,226 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Marks Entry</title>
+
+    <style>
+      body {
+        font-family: Arial;
+        background: #f3f6fb;
+        margin: 0;
+      }
+
+      .container {
+        max-width: 900px;
+        margin: 40px auto;
+      }
+
+      .card {
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+      }
+
+      h2 {
+        margin-bottom: 25px;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      label {
+        font-size: 14px;
+        color: #555;
+      }
+
+      select,
+      input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 14px;
+      }
+
+      button {
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 12px 20px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 14px;
+      }
+
+      button:hover {
+        background: #1e4fd8;
+      }
+
+      .table-card {
+        margin-top: 30px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+      }
+
+      th {
+        text-align: left;
+        color: #666;
+      }
+
+      .fail {
+        color: red;
+        font-weight: 600;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <button class="back-btn" onclick="goBack()">Back to Dashboard</button>
+
+      <div class="card">
+        <h2>Marks Entry</h2>
+
+        <div class="form-grid">
+          <div>
+            <label>Student</label>
+            <select id="studentSelect"></select>
+          </div>
+
+          <div>
+            <label>Subject</label>
+            <select id="subjectSelect"></select>
+          </div>
+
+          <div>
+            <label>Marks</label>
+            <input type="number" id="marksInput" min="0" max="100" />
+          </div>
+        </div>
+
+        <button onclick="saveMarks()">Save Marks</button>
+      </div>
+
+      <div class="card table-card">
+        <h2>Recent Marks</h2>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Subject</th>
+              <th>Marks</th>
+            </tr>
+          </thead>
+
+          <tbody id="marksTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      function goBack() {
+        window.location.href = "dashboard.html";
+      }
+      async function loadStudents() {
+        const res = await fetch("http://localhost:5000/api/students");
+        const data = await res.json();
+
+        let html = "";
+
+        data.forEach((s) => {
+          html += `<option value="${s.student_id}">${s.name}</option>`;
+        });
+
+        document.getElementById("studentSelect").innerHTML = html;
+      }
+
+      async function loadSubjects() {
+        const res = await fetch("http://localhost:5000/api/admin/subjects");
+        const data = await res.json();
+
+        let html = "";
+
+        data.forEach((s) => {
+          html += `<option value="${s.subject_id}">${s.subject_name}</option>`;
+        });
+
+        document.getElementById("subjectSelect").innerHTML = html;
+      }
+
+      async function loadMarks() {
+        const res = await fetch("http://localhost:5000/api/analysis/averages");
+        const data = await res.json();
+
+        let html = "";
+
+        data.forEach((m) => {
+          html += `
+<tr class="${m.average_marks < 40 ? "fail" : ""}">
+<td>${m.name}</td>
+<td>-</td>
+<td>${m.average_marks}</td>
+</tr>
+`;
+        });
+
+        document.getElementById("marksTable").innerHTML = html;
+      }
+
+      async function saveMarks() {
+        const teacherData = localStorage.getItem("teacher");
+
+        if (!teacherData) {
+          alert("Teacher not logged in");
+          return;
+        }
+
+        const teacher = JSON.parse(teacherData);
+
+        const student_id = document.getElementById("studentSelect").value;
+        const subject_id = document.getElementById("subjectSelect").value;
+        const marks = document.getElementById("marksInput").value;
+
+        try {
+          const res = await fetch("http://localhost:5000/api/marks", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              student_id: student_id,
+              subject_id: subject_id,
+              marks: marks,
+              teacher_id: teacher.teacher_id,
+            }),
+          });
+
+          const data = await res.json();
+
+          alert("Marks saved successfully");
+        } catch (err) {
+          console.error(err);
+          alert("Error saving marks");
+        }
+      }
+
+      loadStudents();
+      loadSubjects();
+      loadMarks();
+    </script>
+  </body>
+</html>

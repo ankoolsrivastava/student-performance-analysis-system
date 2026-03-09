@@ -1,212 +1,275 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
+  <head>
+    <title>Students</title>
 
-<title>Students</title>
+    <style>
+      body {
+        font-family: Arial;
+        margin: 0;
+        background: #f3f6fb;
+      }
 
-<style>
+      /* Layout */
 
-body{
-font-family:Arial;
-margin:0;
-background:#f3f6fb;
-}
+      .layout {
+        display: flex;
+        min-height: 100vh;
+      }
 
-/* Layout */
+      /* Sidebar */
 
-.layout{
-display:flex;
-min-height:100vh;
-}
+      .sidebar {
+        width: 220px;
+        background: #6a7de3;
+        color: white;
+        padding-top: 20px;
+      }
 
-/* Sidebar */
+      .sidebar h2 {
+        text-align: center;
+      }
 
-.sidebar{
-width:220px;
-background:#6a7de3;
-color:white;
-padding-top:20px;
-}
+      .sidebar a {
+        display: block;
+        padding: 15px 20px;
+        color: white;
+        text-decoration: none;
+      }
 
-.sidebar h2{
-text-align:center;
-}
+      .sidebar a:hover {
+        background: #5566c9;
+      }
 
-.sidebar a{
-display:block;
-padding:15px 20px;
-color:white;
-text-decoration:none;
-}
+      /* Main */
 
-.sidebar a:hover{
-background:#5566c9;
-}
+      .main {
+        flex: 1;
+        padding: 30px;
+      }
 
-/* Main */
+      /* Top actions */
 
-.main{
-flex:1;
-padding:30px;
-}
+      .top-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
 
-/* Search */
+      /* Search */
 
-.search-box{
-margin-bottom:20px;
-}
+      .search-box input {
+        padding: 10px;
+        width: 250px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
 
-.search-box input{
-padding:10px;
-width:250px;
-border:1px solid #ccc;
-border-radius:5px;
-}
+      /* Table */
 
-/* Table */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        background: white;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      }
 
-table{
-width:100%;
-border-collapse:collapse;
-background:white;
-box-shadow:0 4px 10px rgba(0,0,0,0.1);
-}
+      th,
+      td {
+        padding: 12px;
+        border-bottom: 1px solid #eee;
+      }
 
-th,td{
-padding:12px;
-border-bottom:1px solid #eee;
-}
+      th {
+        background: #6a7de3;
+        color: white;
+      }
 
-th{
-background:#6a7de3;
-color:white;
-}
+      /* Buttons */
 
-button{
-padding:6px 12px;
-background:#6a7de3;
-color:white;
-border:none;
-cursor:pointer;
-border-radius:4px;
-}
+      button {
+        padding: 6px 12px;
+        background: #6a7de3;
+        color: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 4px;
+        margin-right: 4px;
+      }
 
-</style>
+      button.delete {
+        background: #dc2626;
+      }
 
-</head>
+      button.edit {
+        background: #16a34a;
+      }
 
-<body>
+      button.add {
+        background: #2563eb;
+      }
 
-<div class="layout">
+      button:hover {
+        opacity: 0.9;
+      }
+    </style>
+  </head>
 
-<div class="sidebar">
+  <body>
+    <div class="layout">
+      <div class="main">
+        <button onclick="goBack()">Back to Dashboard</button>
 
-<h2>Teacher</h2>
+        <div class="top-actions">
+          <h2>Students</h2>
 
-<a href="dashboard.html">Dashboard</a>
-<a href="students.html">Students</a>
-<a href="marks.html">Marks Entry</a>
-<a href="attendance.html">Attendance</a>
-<a href="analysis.html">Performance</a>
-<a href="#" onclick="logout()">Logout</a>
+          <button class="add" onclick="openAddStudent()">Add Student</button>
+        </div>
 
-</div>
+        <div class="search-box">
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search by name or roll number"
+          />
+        </div>
 
+        <table>
+          <thead>
+            <tr>
+              <th>Roll No</th>
+              <th>Name</th>
+              <th>Department</th>
+              <th>Year</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
 
-<div class="main">
+          <tbody id="studentTable"></tbody>
+        </table>
+      </div>
+    </div>
 
-<h2>Students</h2>
+    <script>
+      function goBack() {
+        window.location.href = "dashboard.html";
+      }
 
-<div class="search-box">
-<input type="text" id="searchInput" placeholder="Search by name or roll number">
-</div>
+      /* Load students */
 
-<table>
+      async function loadStudents() {
+        const res = await fetch("http://localhost:5000/api/students");
+        const data = await res.json();
 
-<thead>
-<tr>
-<th>Roll No</th>
-<th>Name</th>
-<th>Department</th>
-<th>Year</th>
-<th>Profile</th>
-</tr>
-</thead>
+        window.allStudents = data;
 
-<tbody id="studentTable"></tbody>
+        displayStudents(data);
+      }
 
-</table>
+      /* Display students */
 
-</div>
+      function displayStudents(students) {
+        let html = "";
 
-</div>
-
-<script>
-
-async function loadStudents(){
-
-const res = await fetch("http://localhost:5000/api/students")
-const data = await res.json()
-
-displayStudents(data)
-
-window.allStudents = data
-
-}
-
-function displayStudents(students){
-
-let html=""
-
-students.forEach(s=>{
-
-html += `
+        students.forEach((s) => {
+          html += `
 <tr>
 <td>${s.roll_number}</td>
 <td>${s.name}</td>
 <td>${s.department}</td>
 <td>${s.year}</td>
+
 <td>
+
 <button onclick="openProfile(${s.student_id})">
 View
 </button>
+
+<button class="edit" onclick="editStudent(${s.student_id})">
+Edit
+</button>
+
+<button class="delete" onclick="deleteStudent(${s.student_id})">
+Delete
+</button>
+
 </td>
+
 </tr>
-`
+`;
+        });
 
-})
+        document.getElementById("studentTable").innerHTML = html;
+      }
 
-document.getElementById("studentTable").innerHTML = html
+      /* Open student profile */
 
-}
+      function openProfile(id) {
+        window.location.href = "student-profile.html?id=" + id;
+      }
 
-function openProfile(id){
+      /* Add student */
 
-window.location.href = "student-profile.html?id=" + id
+      function openAddStudent() {
+        window.location.href = "add-student.html";
+      }
 
-}
+      /* Edit student */
 
-document.getElementById("searchInput").addEventListener("keyup",function(){
+      function editStudent(id) {
+        window.location.href = "edit-student.html?id=" + id;
+      }
 
-const keyword = this.value.toLowerCase()
+      /* Delete student */
 
-const filtered = window.allStudents.filter(s =>
-s.name.toLowerCase().includes(keyword) ||
-s.roll_number.toLowerCase().includes(keyword)
-)
+      async function deleteStudent(id) {
+        if (!confirm("Are you sure you want to delete this student?")) return;
 
-displayStudents(filtered)
+        try {
+          const res = await fetch(`http://localhost:5000/api/students/${id}`, {
+            method: "DELETE",
+          });
 
-})
+          if (!res.ok) {
+            throw new Error("Delete failed");
+          }
 
-function logout(){
-localStorage.removeItem("teacher")
-window.location.href="login.html"
-}
+          alert("Student deleted successfully");
 
-loadStudents()
+          loadStudents();
+        } catch (err) {
+          console.error(err);
+          alert("Error deleting student");
+        }
+      }
 
-</script>
+      /* Search */
 
-</body>
+      document
+        .getElementById("searchInput")
+        .addEventListener("keyup", function () {
+          const keyword = this.value.toLowerCase();
+
+          const filtered = window.allStudents.filter(
+            (s) =>
+              s.name.toLowerCase().includes(keyword) ||
+              s.roll_number.toLowerCase().includes(keyword),
+          );
+
+          displayStudents(filtered);
+        });
+
+      /* Logout */
+
+      function logout() {
+        localStorage.removeItem("teacher");
+        window.location.href = "login.html";
+      }
+
+      /* Start */
+
+      loadStudents();
+    </script>
+  </body>
 </html>

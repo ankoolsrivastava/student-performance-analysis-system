@@ -7,7 +7,7 @@ const teacherRoutes = require("./routes/teacherRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const analysisRoutes = require("./routes/analysisRoutes");
 const errorHandler = require("./middleware/errorHandler");
-
+const marksRoutes = require("./routes/marksRoutes");
 
 
 const app = express();
@@ -20,6 +20,7 @@ app.use("/api/teachers", teacherRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/analysis", analysisRoutes);
 app.use(errorHandler);
+app.use("/api/marks", marksRoutes);
 
 app.get("/", (req, res) => {
   res.send("Student Performance Analysis System API");
@@ -37,3 +38,5 @@ app.get("/health", (req, res) => {
     timestamp: new Date()
   });
 });
+
+
