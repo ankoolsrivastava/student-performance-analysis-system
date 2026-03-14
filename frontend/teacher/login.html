@@ -1,49 +1,377 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Teacher Login</title>
-<link rel="stylesheet" href="../css/style.css">
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<body>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
 
-<div class="container">
+    <title>Teacher Login</title>
 
-<div class="login-card">
+    <style>
+      /*=============== GOOGLE FONTS ===============*/
+      @import url("https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap");
 
-<h2>Teacher Login</h2>
+      /*=============== VARIABLES CSS ===============*/
+      :root {
+        --first-color: hsl(263, 64%, 48%);
+        --first-color-alt: hsl(263, 64%, 44%);
+        --border-color: hsl(0, 0%, 45%);
+        --title-color: hsl(0, 0%, 95%);
+        --text-color: hsl(0, 0%, 55%);
+        --body-color: hsl(0, 0%, 4%);
+        --container-color: hsl(0, 0%, 8%);
+        --error-color: hsl(0, 80%, 60%);
 
-<p class="sub">or use your email to login</p>
+        --body-font: "Syne", sans-serif;
+        --big-font-size: 1.5rem;
+        --normal-font-size: 0.938rem;
+        --small-font-size: 0.813rem;
+      }
 
-<form id="loginForm">
+      @media screen and (width >= 1150px) {
+        :root {
+          --big-font-size: 2.25rem;
+          --normal-font-size: 1rem;
+          --small-font-size: 0.875rem;
+        }
+      }
 
-<label>Email</label>
-<input type="email" id="email" placeholder="Email" required>
+      /*=============== BASE ===============*/
+      * {
+        box-sizing: border-box;
+        padding: 0;
+        margin: 0;
+      }
 
-<label>Password</label>
-<input type="password" id="password" placeholder="Password" required>
+      body,
+      input,
+      button {
+        font-family: var(--body-font);
+        font-size: var(--normal-font-size);
+      }
 
-<div class="btn-group">
-<button type="submit" class="login-btn">Login</button>
-<button type="button" class="signup-btn">Sign up</button>
-</div>
+      body {
+        background-color: var(--body-color);
+        color: var(--text-color);
+        font-weight: 600;
+      }
 
-<p id="error" class="error"></p>
+      input,
+      button {
+        border: none;
+        outline: none;
+      }
 
-</form>
+      a {
+        text-decoration: none;
+      }
 
-</div>
+      img {
+        display: block;
+        max-width: 100%;
+        height: auto;
+      }
 
-<div class="illustration">
+      /*=============== LOGIN ===============*/
+      .login {
+        height: 100vh;
+        display: grid;
+        align-items: center;
+        margin-inline: 1rem;
+      }
 
-<img src="../assets/teacher.png" alt="teacher">
+      .login__img {
+        display: none;
+      }
 
-</div>
+      .login__content {
+        box-shadow: 0 4px 24px hsla(263, 45%, 2%, 0.5);
+        padding: 3.5rem 1.5rem;
+        border-radius: 1.5rem;
+        background-color: var(--container-color);
+      }
 
-</div>
+      .login__title {
+        font-size: var(--big-font-size);
+        color: var(--title-color);
+        text-align: center;
+        margin-bottom: 3rem;
+      }
 
-<script src="../js/login.js"></script>
+      .login__group {
+        display: grid;
+        row-gap: 1rem;
+        margin-bottom: 1rem;
+      }
 
-</body>
+      .login__box {
+        position: relative;
+        height: 64px;
+        background-color: var(--container-color);
+        border: 2px solid var(--border-color);
+        border-radius: 4rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .login__icon {
+        position: absolute;
+        left: 1.25rem;
+        font-size: 1.5rem;
+        font-weight: initial;
+      }
+
+      /* Password toggle eye icon styling */
+      .login__eye {
+        position: absolute;
+        right: 1.25rem;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--title-color);
+        z-index: 10;
+      }
+
+      .login__label {
+        position: absolute;
+        left: 3.25rem;
+        transition: opacity 0.4s;
+      }
+
+      .login__input {
+        width: 100%;
+        height: 100%;
+        margin-left: 3.25rem;
+        padding-right: 2.5rem; /* Prevents text from overlapping the eye icon */
+        font-weight: 600;
+        z-index: 2;
+        background: transparent;
+        color: var(--title-color);
+      }
+
+      .login__input:focus + .login__label,
+      .login__input:not(:placeholder-shown) + .login__label {
+        opacity: 0;
+      }
+
+      .login__input:autofill {
+        transition:
+          background-color 6000s,
+          color 6000s;
+      }
+
+      .login__forgot {
+        display: block;
+        width: max-content;
+        margin: 0 0 2rem auto;
+        color: var(--title-color);
+        font-size: var(--small-font-size);
+      }
+
+      .error {
+        color: var(--error-color);
+        text-align: center;
+        font-size: var(--small-font-size);
+        margin-bottom: 1rem;
+        min-height: 1.2rem;
+      }
+
+      .login__button {
+        width: 100%;
+        height: 64px;
+        background-color: var(--first-color);
+        color: var(--title-color);
+        border-radius: 4rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        column-gap: 0.5rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: background-color 0.4s;
+      }
+
+      .login__button i {
+        font-weight: initial;
+        font-size: 1.5rem;
+      }
+
+      .login__button:hover {
+        background-color: var(--first-color-alt);
+      }
+
+      .login__sign {
+        text-align: center;
+        font-size: var(--small-font-size);
+      }
+
+      .login__sign a {
+        color: var(--title-color);
+      }
+
+      /*=============== BREAKPOINTS ===============*/
+      @media (width >= 540px) {
+        .login {
+          grid-template-columns: 400px;
+          justify-content: center;
+        }
+      }
+
+      @media (width >= 1150px) {
+        .login {
+          grid-template-columns: initial;
+        }
+        .login__image {
+          overflow: hidden;
+          border-radius: 3rem;
+        }
+        .login__img {
+          display: block;
+          width: 480px;
+          border-radius: 3rem;
+        }
+        .login__content {
+          display: grid;
+          grid-template-columns: 360px 480px;
+          column-gap: 7rem;
+          align-items: center;
+          padding: 1.5rem 1.5rem 1.5rem 7rem;
+          border-radius: 4rem;
+          overflow: hidden;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <section class="login">
+      <div class="login__content">
+        <div>
+          <h2 class="login__title">Teacher Login</h2>
+
+          <form id="loginForm" class="login__form">
+            <div class="login__group">
+              <div class="login__box">
+                <i class="ri-mail-fill login__icon"></i>
+                <input
+                  type="email"
+                  name="email"
+                  autocomplete="email"
+                  required
+                  placeholder=" "
+                  class="login__input"
+                  id="email"
+                />
+                <label for="email" class="login__label">Email</label>
+              </div>
+
+              <div class="login__box">
+                <i class="ri-lock-2-fill login__icon"></i>
+                <input
+                  type="password"
+                  name="password"
+                  autocomplete="current-password"
+                  required
+                  placeholder=" "
+                  class="login__input"
+                  id="password"
+                />
+                <label for="password" class="login__label">Password</label>
+                <i class="ri-eye-off-line login__eye" id="login-eye"></i>
+              </div>
+            </div>
+
+            <a href="#" class="login__forgot">Forgot Password?</a>
+
+            <p id="error" class="error"></p>
+
+            <button type="submit" class="login__button login-btn">
+              Log In <i class="ri-send-plane-2-fill"></i>
+            </button>
+
+            <p class="login__sign">
+              Don't have an account? <a href="#" class="signup-btn">Sign Up</a>
+            </p>
+          </form>
+        </div>
+
+        <div class="login__image">
+          <img src="assets/img/login-bg.png" alt="" class="login__img" />
+        </div>
+      </div>
+    </section>
+
+    <script src="../js/login.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/gsap.min.js"></script>
+
+    <script>
+      /*=============== SHOW HIDDEN PASSWORD ===============*/
+      const passwordInput = document.getElementById("password"),
+        loginEye = document.getElementById("login-eye");
+
+      loginEye.addEventListener("click", () => {
+        if (passwordInput.type === "password") {
+          // Change to text
+          passwordInput.type = "text";
+          loginEye.classList.remove("ri-eye-off-line");
+          loginEye.classList.add("ri-eye-line");
+        } else {
+          // Change back to password
+          passwordInput.type = "password";
+          loginEye.classList.remove("ri-eye-line");
+          loginEye.classList.add("ri-eye-off-line");
+        }
+      });
+
+      /*=============== GSAP ANIMATION ===============*/
+      const tl = gsap.timeline({});
+
+      tl.fromTo(
+        ".login__content",
+        { y: -800, scaleX: 0.2, scaleY: 0.5, opacity: 0 },
+        {
+          y: 0,
+          scaleX: 0.2,
+          scaleY: 0.5,
+          opacity: 1,
+          duration: 1.5,
+          ease: "power3.out",
+        },
+      );
+
+      tl.to(
+        ".login__content",
+        { scaleY: 1, duration: 0.6, ease: "power3.out" },
+        "-=0.3",
+      );
+      tl.to(
+        ".login__content",
+        { scaleX: 1, duration: 0.7, ease: "power3.out" },
+        "-=0.2",
+      );
+
+      tl.to(".login__img", {
+        scale: 1.08,
+        duration: 5,
+        ease: "power1.inOut",
+        repeat: -1,
+        yoyo: true,
+        transformOrigin: "center center",
+      });
+
+      gsap.defaults({ opacity: 0, y: -60, ease: "power2.out", duration: 1.2 });
+      gsap.from(".login__title", { delay: 2.5 });
+      gsap.from(".login__form > *", { delay: 2.7, stagger: 0.2 });
+      gsap.from(".login__img", {
+        y: 0,
+        x: 100,
+        delay: 3.2,
+        ease: "elastic.out(1,0.6)",
+      });
+    </script>
+  </body>
 </html>

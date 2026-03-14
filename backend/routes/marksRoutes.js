@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const { upsertMarks } = require("../controllers/marksController");
+const marksController = require("../controllers/marksController");
 
-router.post("/", upsertMarks);
+// This route now handles Unit Tests and End Sem based on the body data
+router.post("/upsert", marksController.upsertMarks);
 
 module.exports = router;

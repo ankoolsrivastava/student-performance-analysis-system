@@ -1,26 +1,36 @@
 const pool = require("../db");
-const bcrypt = require("bcrypt");
 
-/* Get all students */
+/* ================= GET ALL STUDENTS ================= */
+
 exports.getAllStudents = async (req, res) => {
   try {
     const result = await pool.query(
-      "SELECT student_id,name,roll_number,email,department,year FROM students ORDER BY student_id ASC",
+      `SELECT
+student_id,
+name,
+roll_number,
+email,
+department,
+year
+FROM students
+ORDER BY student_id ASC`,
     );
+
     res.json(result.rows);
   } catch (error) {
-    console.error(error);
+    console.error("Get all students error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-/* Get single student */
+/* ================= GET SINGLE STUDENT ================= */
+
 exports.getStudentById = async (req, res) => {
   const id = req.params.id;
 
   try {
     const result = await pool.query(
-      "SELECT * FROM students WHERE student_id=$1",
+      `SELECT * FROM students WHERE student_id = $1`,
       [id],
     );
 
@@ -30,12 +40,13 @@ exports.getStudentById = async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (error) {
-    console.error(error);
+    console.error("Get student error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-/* Create student */
+/* ================= CREATE STUDENT ================= */
+
 exports.createStudent = async (req, res) => {
   const {
     name,
@@ -53,9 +64,9 @@ exports.createStudent = async (req, res) => {
   try {
     const result = await pool.query(
       `INSERT INTO students
-      (name, roll_number, email, phone, parent_name, parent_phone, address, date_of_birth, department, year)
-      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-      RETURNING *`,
+(name, roll_number, email, phone, parent_name, parent_phone, address, date_of_birth, department, year)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+RETURNING *`,
       [
         name,
         roll_number,
@@ -72,19 +83,29 @@ exports.createStudent = async (req, res) => {
 
     res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.error(error);
+    console.error("Create student error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-/* Update student */
+/* ================= UPDATE STUDENT ================= */
+
 exports.updateStudent = async (req, res) => {
   const id = req.params.id;
+
   const { name, roll_number, email, department, year } = req.body;
 
   try {
     const result = await pool.query(
-      "UPDATE students SET name=$1, roll_number=$2, email=$3, department=$4, year=$5 WHERE student_id=$6 RETURNING student_id,name,roll_number,email,department,year",
+      `UPDATE students
+SET
+name = $1,
+roll_number = $2,
+email = $3,
+department = $4,
+year = $5
+WHERE student_id = $6
+RETURNING student_id,name,roll_number,email,department,year`,
       [name, roll_number, email, department, year, id],
     );
 
@@ -94,39 +115,36 @@ exports.updateStudent = async (req, res) => {
 
     res.json(result.rows[0]);
   } catch (error) {
-    console.error(error);
+    console.error("Update student error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-/* Delete student */
+/* ================= DELETE STUDENT ================= */
+
 exports.deleteStudent = async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    // 1. Delete all related data FIRST (Order matters!)
+    await pool.query("DELETE FROM marks WHERE student_id = $1", [id]);
+    await pool.query("DELETE FROM assignments WHERE student_id = $1", [id]);
+    await pool.query("DELETE FROM attendance WHERE student_id = $1", [id]);
 
-const id = req.params.id;
+    // 2. NOW it is safe to delete the student
+    const result = await pool.query(
+      "DELETE FROM students WHERE student_id = $1 RETURNING *",
+      [id]
+    );
 
-try{
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: "Student not found." });
+    }
 
-/* delete dependent data first */
-
-await pool.query(
-"DELETE FROM marks WHERE student_id = $1",
-[id]
-);
-
-/* delete student */
-
-await pool.query(
-"DELETE FROM students WHERE student_id = $1",
-[id]
-);
-
-res.json({message:"Student deleted successfully"});
-
-}catch(error){
-
-console.error(error);
-res.status(500).json({message:"Server error"});
-
-}
-
+    res.json({ message: "Student and all related records deleted successfully!" });
+    
+  } catch (err) {
+    console.error("Deletion Error:", err.message);
+    res.status(500).json({ message: "Server error during deletion." });
+  }
 };

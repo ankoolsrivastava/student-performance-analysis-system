@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attendance - Teacher Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/gsap.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+      :root {
+        --first-color: hsl(263, 64%, 48%);
+        --first-color-alt: hsl(263, 64%, 44%);
+        --bg-color: #f4f7fe;
+        --card-bg: #ffffff;
+        --text-main: #2b3674;
+        --text-muted: #a3aed1;
+        --border-color: #eef2f6;
+        --body-font: "Inter", sans-serif;
+      }
+
+      [data-theme="dark"] {
+        --bg-color: #0b0f19;
+        --card-bg: #1a1f2e;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border-color: #2a3142;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--body-font);
+        background: var(--bg-color);
+        color: var(--text-main);
+        transition:
+          background-color 0.3s,
+          color 0.3s;
+      }
+
+      .layout {
+        display: flex;
+        min-height: 100vh;
+      }
+
+      /* ================= SIDEBAR & TOPBAR ================= */
+      .sidebar {
+        width: 260px;
+        flex-shrink: 0;
+        background: var(--first-color);
+        color: white;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
+        z-index: 20;
+      }
+      .sidebar h2 {
+        text-align: center;
+        padding: 30px 20px;
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+      }
+      .sidebar a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 20px;
+        margin: 4px 16px;
+        color: rgba(255, 255, 255, 0.8);
+        text-decoration: none;
+        font-weight: 500;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+      }
+      .sidebar a i {
+        font-size: 1.2rem;
+      }
+      .sidebar a:hover,
+      .sidebar a.active {
+        background: rgba(255, 255, 255, 0.15);
+        color: white;
+        transform: translateX(4px);
+      }
+
+      .main {
+        flex: 1;
+        padding: 30px 40px;
+        overflow-y: auto;
+      }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+      .topbar h1 {
+        font-size: 2rem;
+        margin: 0;
+        color: var(--text-main);
+        font-weight: 700;
+      }
+
+      /* Profile Dropdown */
+      .profile-wrapper {
+        position: relative;
+      }
+      .profile {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        background: var(--card-bg);
+        padding: 6px 16px 6px 6px;
+        border-radius: 30px;
+        border: 1px solid var(--border-color);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+      }
+      .profile img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+      }
+      .dropdown {
+        position: absolute;
+        top: 120%;
+        right: 0;
+        background: var(--card-bg);
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        width: 200px;
+        padding: 10px 0;
+        display: flex;
+        flex-direction: column;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-10px);
+        transition: all 0.3s ease;
+        z-index: 1001;
+        border: 1px solid var(--border-color);
+      }
+      .dropdown.show {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+      }
+      .dropdown a,
+      .dropdown button {
+        padding: 12px 20px;
+        color: var(--text-main);
+        background: none;
+        border: none;
+        text-align: left;
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+      }
+      .dropdown a:hover,
+      .dropdown button:hover {
+        background: var(--bg-color);
+        color: var(--first-color);
+      }
+
+      /* ================= TABS ================= */
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 24px;
+        border-bottom: 2px solid var(--border-color);
+        padding-bottom: 10px;
+      }
+      .tab-btn {
+        background: none;
+        border: none;
+        font-family: var(--body-font);
+        font-size: 1.05rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.2s;
+      }
+      .tab-btn.active {
+        background: var(--first-color);
+        color: white;
+      }
+      .tab-btn:hover:not(.active) {
+        background: var(--card-bg);
+        color: var(--first-color);
+      }
+
+      .tab-content {
+        display: none;
+      }
+      .tab-content.active {
+        display: block;
+        animation: fadeIn 0.4s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ================= PANELS & CONTROLS ================= */
+      .panel {
+        background: var(--card-bg);
+        padding: 24px;
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        margin-bottom: 24px;
+      }
+      .controls-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        align-items: end;
+      }
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .input-group label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .input-group input,
+      .input-group select {
+        padding: 12px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        background: var(--bg-color);
+        color: var(--text-main);
+        font-family: var(--body-font);
+        font-size: 1rem;
+        outline: none;
+        transition: border 0.2s;
+      }
+      .input-group input:focus,
+      .input-group select:focus {
+        border-color: var(--first-color);
+      }
+
+      .btn-primary {
+        background: var(--first-color);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        transition: 0.2s;
+        height: 46px;
+        font-family: var(--body-font);
+      }
+      .btn-primary:hover {
+        background: var(--first-color-alt);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(106, 125, 227, 0.3);
+      }
+
+      .btn-danger-outline {
+        background: transparent;
+        color: #ef4444;
+        border: 1px solid #ef4444;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: 0.2s;
+      }
+      .btn-danger-outline:hover,
+      .btn-danger-outline.flagged {
+        background: #ef4444;
+        color: white;
+      }
+
+      /* ================= TABLES & TOGGLES ================= */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        padding: 16px 10px;
+        border-bottom: 1px solid var(--border-color);
+        text-align: left;
+      }
+      th {
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-weight: 600;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+      .student-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 500;
+      }
+      .student-cell img {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #f1f5f9;
+      }
+
+      .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 30px;
+      }
+      .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ef4444;
+        transition: 0.4s;
+        border-radius: 30px;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 4px;
+        bottom: 4px;
+        background-color: white;
+        transition: 0.4s;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+      }
+      input:checked + .slider {
+        background-color: #10b981;
+      }
+      input:checked + .slider:before {
+        transform: translateX(30px);
+      }
+
+      .status-text {
+        margin-left: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      .status-present {
+        color: #10b981;
+      }
+      .status-absent {
+        color: #ef4444;
+      }
+
+      .actions-footer {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+      }
+      .text-danger {
+        color: #ef4444 !important;
+        font-weight: 700;
+      }
+      .text-success {
+        color: #10b981 !important;
+        font-weight: 700;
+      }
+      #attendanceTableContainer,
+      #reportTableContainer {
+        display: none;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="layout">
+      <div class="sidebar">
+        <h2>Teacher</h2>
+        <a href="dashboard.html"><i class="ri-dashboard-line"></i> Dashboard</a>
+        <a href="students.html"><i class="ri-group-line"></i> Students</a>
+        <a href="marks.html"><i class="ri-file-edit-line"></i> Marks Entry</a>
+        <a href="attendance.html" class="active"
+          ><i class="ri-calendar-check-fill"></i> Attendance</a
+        >
+        <a href="analysis.html"
+          ><i class="ri-bar-chart-box-line"></i> Performance</a
+        >
+      </div>
+
+      <div class="main">
+        <header class="topbar">
+          <h1>Attendance Management</h1>
+          <div class="profile-wrapper">
+            <div class="profile" id="profileBtn">
+              <img id="profileImg" alt="Profile" />
+              <span id="teacherName"></span>
+              <i
+                class="ri-arrow-down-s-line"
+                style="color: var(--text-muted)"
+              ></i>
+            </div>
+            <div class="dropdown" id="profileDropdown">
+              <button id="themeToggle">
+                <i class="ri-moon-line" id="themeIcon"></i> Toggle Theme
+              </button>
+              <button onclick="logout()" class="logout-btn">
+                <i class="ri-logout-box-r-line"></i> Logout
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <div class="tabs">
+          <button
+            class="tab-btn active"
+            onclick="switchTab('markTab')"
+            id="btn-markTab"
+          >
+            Mark Daily Attendance
+          </button>
+          <button
+            class="tab-btn"
+            onclick="switchTab('reportTab')"
+            id="btn-reportTab"
+          >
+            Analytics & Reports
+          </button>
+        </div>
+
+        <div id="markTab" class="tab-content active">
+          <div class="panel">
+            <div class="controls-grid">
+              <div class="input-group">
+                <label>Date</label>
+                <input type="date" id="attendanceDate" />
+              </div>
+              <div class="input-group">
+                <label>Subject</label>
+                <select id="subjectSelectMark">
+                  <option value="">-- Select Subject --</option>
+                </select>
+              </div>
+              <button
+                class="btn-primary"
+                onclick="fetchStudentsForAttendance()"
+              >
+                <i class="ri-search-line"></i> Load Class
+              </button>
+            </div>
+          </div>
+
+          <div class="panel" id="attendanceTableContainer">
+            <h3 style="margin-top: 0; color: var(--text-main)">
+              Daily Student List
+            </h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Roll No</th>
+                  <th>Student</th>
+                  <th style="width: 200px">Status</th>
+                </tr>
+              </thead>
+              <tbody id="attendanceTbody"></tbody>
+            </table>
+            <div class="actions-footer">
+              <button class="btn-primary" onclick="saveAttendance()">
+                <i class="ri-save-3-line"></i> Save Attendance
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="reportTab" class="tab-content">
+          <div class="panel">
+            <div class="controls-grid">
+              <div class="input-group">
+                <label>Subject (Optional)</label>
+                <select id="subjectSelectReport">
+                  <option value="">All Subjects Combined</option>
+                </select>
+              </div>
+              <div class="input-group">
+                <label>Timeframe Filter</label>
+                <select id="timeFilter">
+                  <option value="week">Past 7 Days (Week)</option>
+                  <option value="month">Past 30 Days (Month)</option>
+                  <option value="semester" selected>
+                    Entire Semester (All Time)
+                  </option>
+                </select>
+              </div>
+              <button class="btn-primary" onclick="fetchAttendanceReport()">
+                <i class="ri-bar-chart-2-line"></i> Generate Report
+              </button>
+            </div>
+          </div>
+
+          <div class="panel" id="reportTableContainer">
+            <h3 style="margin-top: 0; color: var(--text-main)">
+              Attendance Analytics
+            </h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Roll No</th>
+                  <th>Student</th>
+                  <th>Present / Total Days</th>
+                  <th>Percentage</th>
+                  <th style="text-align: right">Defaulter Action</th>
+                </tr>
+              </thead>
+              <tbody id="reportTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* ================= THEME & PROFILE SETUP ================= */
+      const themeBtn = document.getElementById("themeToggle");
+      const themeIcon = document.getElementById("themeIcon");
+      let theme = localStorage.getItem("dashboard_theme") || "light";
+
+      function applyTheme(t) {
+        document.body.setAttribute("data-theme", t);
+        if (themeIcon)
+          themeIcon.className = t === "dark" ? "ri-sun-line" : "ri-moon-line";
+      }
+      applyTheme(theme);
+
+      if (themeBtn) {
+        themeBtn.onclick = () => {
+          theme = theme === "light" ? "dark" : "light";
+          localStorage.setItem("dashboard_theme", theme);
+          applyTheme(theme);
+        };
+      }
+
+      const profileBtn = document.getElementById("profileBtn");
+      const dropdown = document.getElementById("profileDropdown");
+      if (profileBtn && dropdown) {
+        profileBtn.onclick = (e) => {
+          e.stopPropagation();
+          dropdown.classList.toggle("show");
+        };
+        window.onclick = (e) => {
+          if (!dropdown.contains(e.target) && !profileBtn.contains(e.target))
+            dropdown.classList.remove("show");
+        };
+      }
+
+      async function loadDefaulters() {
+        try {
+          // Make sure this matches your analysisRoutes.js endpoint
+          const res = await fetch(
+            "http://localhost:5000/api/analysis/defaulters",
+          );
+          const data = await res.json();
+
+          let html = "";
+          if (data.length === 0) {
+            html = `<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">No flagged defaulters.</td></tr>`;
+          } else {
+            data.forEach((s) => {
+              html += `
+          <tr>
+            <td style="color: var(--text-muted); font-size: 0.9rem;">${s.roll_number}</td>
+            <td style="font-weight: 500;">${s.name}</td>
+            <td class="right-align text-danger">${s.attendance_percentage}%</td>
+          </tr>`;
+            });
+          }
+          document.getElementById("defaultersTable").innerHTML = html;
+        } catch (err) {
+          console.error("Dashboard list error:", err);
+        }
+      }
+
+      const teacher = JSON.parse(localStorage.getItem("teacher") || "{}");
+      if (!teacher.name) window.location.href = "login.html";
+      else {
+        document.getElementById("teacherName").innerText = teacher.name;
+        document.getElementById("profileImg").src =
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(teacher.name)}&background=6a7de3&color=fff&bold=true`;
+      }
+
+      /* ================= TAB LOGIC ================= */
+      function switchTab(tabId) {
+        document
+          .querySelectorAll(".tab-content")
+          .forEach((el) => el.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((el) => el.classList.remove("active"));
+
+        document.getElementById(tabId).classList.add("active");
+        document.getElementById("btn-" + tabId).classList.add("active");
+      }
+
+      /* ================= DATA LOADING ================= */
+      document.getElementById("attendanceDate").valueAsDate = new Date();
+
+      async function loadSubjects() {
+        try {
+          const res = await fetch(
+            "http://localhost:5000/api/analysis/subjects",
+          );
+          const data = await res.json();
+          const selectMark = document.getElementById("subjectSelectMark");
+          const selectReport = document.getElementById("subjectSelectReport");
+
+          data.forEach((sub) => {
+            selectMark.innerHTML += `<option value="${sub.subject_id}">${sub.subject_name}</option>`;
+            selectReport.innerHTML += `<option value="${sub.subject_id}">${sub.subject_name}</option>`;
+          });
+        } catch (err) {
+          console.error("Failed to load subjects", err);
+        }
+      }
+      loadSubjects();
+
+      /* ================= TAB 1: MARK DAILY ================= */
+      async function fetchStudentsForAttendance() {
+        const subjectId = document.getElementById("subjectSelectMark").value;
+        if (!subjectId) return alert("Please select a subject first!");
+
+        try {
+          const res = await fetch("http://localhost:5000/api/students");
+          const students = await res.json();
+
+          let html = "";
+          students.forEach((s) => {
+            html += `
+              <tr>
+                <td style="color: var(--text-muted); font-size: 0.9rem;">${s.roll_number}</td>
+                <td>
+                  <div class="student-cell">
+                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random&color=fff&size=32" />
+                    ${s.name}
+                  </div>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center;">
+                    <label class="toggle-switch">
+                      <input type="checkbox" checked id="status_${s.student_id}" onchange="updateStatusText(${s.student_id})">
+                      <span class="slider"></span>
+                    </label>
+                    <span id="text_${s.student_id}" class="status-text status-present">Present</span>
+                  </div>
+                </td>
+              </tr>`;
+          });
+
+          document.getElementById("attendanceTbody").innerHTML = html;
+          document.getElementById("attendanceTableContainer").style.display =
+            "block";
+        } catch (err) {
+          console.error(err);
+          alert("Failed to load student list.");
+        }
+      }
+
+      function updateStatusText(studentId) {
+        const checkbox = document.getElementById(`status_${studentId}`);
+        const textSpan = document.getElementById(`text_${studentId}`);
+        if (checkbox.checked) {
+          textSpan.innerText = "Present";
+          textSpan.className = "status-text status-present";
+        } else {
+          textSpan.innerText = "Absent";
+          textSpan.className = "status-text status-absent";
+        }
+      }
+
+      async function saveAttendance() {
+        const date = document.getElementById("attendanceDate").value;
+        const subjectId = document.getElementById("subjectSelectMark").value;
+        const checkboxes = document.querySelectorAll(
+          'input[type="checkbox"][id^="status_"]',
+        );
+
+        let attendanceData = [];
+        checkboxes.forEach((cb) => {
+          attendanceData.push({
+            student_id: cb.id.split("_")[1],
+            status: cb.checked ? "Present" : "Absent",
+          });
+        });
+
+        try {
+          const res = await fetch("http://localhost:5000/api/attendance/mark", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              date,
+              subject_id: subjectId,
+              attendance_data: attendanceData,
+            }),
+          });
+          if (res.ok) {
+            alert("Attendance successfully saved to the database!");
+            document.getElementById("attendanceTableContainer").style.display =
+              "none";
+          } else throw new Error("Server rejected save");
+        } catch (err) {
+          console.error(err);
+          alert("Failed to save attendance.");
+        }
+      }
+
+      /* ================= TAB 2: REPORTS & DEFAULTERS ================= */
+      async function fetchAttendanceReport() {
+        const subjectId = document.getElementById("subjectSelectReport").value;
+        const filterType = document.getElementById("timeFilter").value;
+
+        try {
+          // Construct URL params securely
+          const params = new URLSearchParams({ filterType });
+          if (subjectId) params.append("subject_id", subjectId);
+
+          const res = await fetch(
+            `http://localhost:5000/api/attendance/report?${params.toString()}`,
+          );
+          const data = await res.json();
+
+          let html = "";
+          data.forEach((s) => {
+            const perc = s.attendance_percentage || 0;
+            const isDanger = perc < 75;
+            const percClass = isDanger ? "text-danger" : "text-success";
+            const isFlagged = s.is_defaulter;
+
+            html += `
+              <tr>
+                <td style="color: var(--text-muted);">${s.roll_number}</td>
+                <td>
+                  <div class="student-cell">
+                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=random&color=fff&size=32" />
+                    ${s.name} ${isFlagged ? '<i class="ri-flag-fill text-danger" title="Flagged as Defaulter"></i>' : ""}
+                  </div>
+                </td>
+                <td style="font-weight: 500;">${s.total_present} / ${s.total_days} days</td>
+                <td class="${percClass}">${s.total_days == 0 ? "N/A" : perc + "%"}</td>
+                <td style="text-align: right;">
+                  <button class="btn-danger-outline ${isFlagged ? "flagged" : ""}" 
+                          onclick="toggleDefaulter(${s.student_id}, ${!isFlagged})">
+                    <i class="ri-flag-${isFlagged ? "fill" : "line"}"></i> ${isFlagged ? "Unflag" : "Flag Defaulter"}
+                  </button>
+                </td>
+              </tr>`;
+          });
+
+          document.getElementById("reportTbody").innerHTML = html;
+          document.getElementById("reportTableContainer").style.display =
+            "block";
+        } catch (err) {
+          console.error(err);
+          alert("Failed to fetch report.");
+        }
+      }
+
+      async function toggleDefaulter(studentId, newStatus) {
+        try {
+          const res = await fetch("http://localhost:5000/api/attendance/flag", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              student_id: parseInt(studentId),
+              flag_status: newStatus,
+            }),
+          });
+
+          if (res.ok) {
+            // 1. Alert the user it worked
+            console.log("Database updated!");
+            // 2. Refresh the table data on the current page
+            await fetchAttendanceReport();
+          } else {
+            alert("Failed to update status on server.");
+          }
+        } catch (err) {
+          console.error("Connection error:", err);
+        }
+      }
+
+      function logout() {
+        localStorage.removeItem("teacher");
+        window.location.href = "login.html";
+      }
+    </script>
+  </body>
+</html>

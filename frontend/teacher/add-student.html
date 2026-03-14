@@ -1,153 +1,337 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
-    <title>Add Student</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add New Student | Academic Center</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
 
     <style>
-      body {
-        font-family: Arial;
-        margin: 0;
-        background: #f3f6fb;
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+      :root {
+        --first-color: hsl(263, 64%, 48%);
+        --bg-color: #f4f7fe;
+        --card-bg: #ffffff;
+        --text-main: #2b3674;
+        --text-muted: #a3aed1;
+        --border-color: #eef2f6;
+        --body-font: "Inter", sans-serif;
+        --input-bg: #f8fafc;
       }
 
-      /* Layout */
+      [data-theme="dark"] {
+        --bg-color: #0b0f19;
+        --card-bg: #1a1f2e;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border-color: #2a3142;
+        --input-bg: #0b0f19;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--body-font);
+        background: var(--bg-color);
+        color: var(--text-main);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding: 40px 20px;
+        transition: background 0.3s;
+      }
 
       .container {
-        max-width: 700px;
-        margin: 40px auto;
-        background: white;
-        padding: 30px;
-        border-radius: 8px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      }
-
-      h2 {
-        margin-bottom: 20px;
-      }
-
-      /* Form */
-
-      .form-group {
-        margin-bottom: 15px;
-      }
-
-      label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: bold;
-      }
-
-      input,
-      select {
         width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
+        max-width: 800px;
+      }
+
+      /* Header & Back Button */
+      .header-area {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+
+      .btn-back {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        padding: 10px 15px;
+        border-radius: 10px;
+        cursor: pointer;
+        color: var(--text-main);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        transition: 0.3s;
+      }
+
+      .btn-back:hover {
+        background: var(--first-color);
+        color: white;
+        border-color: var(--first-color);
+      }
+
+      h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      /* Card & Form Styles */
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 30px;
+      }
+
+      /* Full width for address */
+      .full-width {
+        grid-column: 1 / -1;
+      }
+
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .input-group label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .input-group input,
+      .input-group select {
+        padding: 14px;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        background: var(--input-bg);
+        color: var(--text-main);
+        font-size: 0.95rem;
+        font-family: var(--body-font);
+        outline: none;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+      }
+
+      .input-group input:focus,
+      .input-group select:focus {
+        border-color: var(--first-color);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
       }
 
       /* Buttons */
-
-      .buttons {
-        margin-top: 20px;
+      .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 40px;
+        padding-top: 25px;
+        border-top: 1px solid var(--border-color);
       }
 
-      button {
-        padding: 10px 16px;
-        border: none;
-        border-radius: 5px;
+      .btn {
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
         cursor: pointer;
-        margin-right: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+        border: none;
       }
 
-      .save {
-        background: #2563eb;
-        color: white;
+      .btn-cancel {
+        background: transparent;
+        color: var(--text-muted);
+        border: 1px solid var(--border-color);
       }
 
-      .cancel {
-        background: #6b7280;
+      .btn-cancel:hover {
+        background: var(--border-color);
+        color: var(--text-main);
+      }
+
+      .btn-save {
+        background: var(--first-color);
         color: white;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+      }
+
+      .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+      }
+
+      @media (max-width: 768px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .card {
+          padding: 25px;
+        }
       }
     </style>
   </head>
 
   <body>
     <div class="container">
-      <h2>Add Student</h2>
+      <div class="header-area">
+        <a href="students.html" class="btn-back"
+          ><i class="ri-arrow-left-line"></i
+        ></a>
+        <h1>Register New Student</h1>
+      </div>
 
-      <form id="studentForm">
-        <div class="form-group">
-          <label>Name</label>
-          <input type="text" id="name" required />
-        </div>
+      <div class="card">
+        <form id="studentForm">
+          <div class="form-grid">
+            <div class="input-group">
+              <label>Full Name *</label>
+              <input
+                type="text"
+                id="name"
+                placeholder="e.g. Vivaan Verma"
+                required
+              />
+            </div>
 
-        <div class="form-group">
-          <label>Roll Number</label>
-          <input type="text" id="roll" required />
-        </div>
+            <div class="input-group">
+              <label>Roll Number *</label>
+              <input type="text" id="roll" placeholder="e.g. BCS302" required />
+            </div>
 
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" id="email" />
-        </div>
+            <div class="input-group">
+              <label>Email Address</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="student@college.edu"
+              />
+            </div>
 
-        <div class="form-group">
-          <label>Phone</label>
-          <input type="text" id="phone" />
-        </div>
+            <div class="input-group">
+              <label>Phone Number</label>
+              <input type="tel" id="phone" placeholder="+91 98765 43210" />
+            </div>
 
-        <div class="form-group">
-          <label>Parent Name</label>
-          <input type="text" id="parent" />
-        </div>
+            <div class="input-group">
+              <label>Department</label>
+              <select id="department">
+                <option value="Computer Engineering">
+                  Computer Engineering
+                </option>
+                <option value="Information Technology">
+                  Information Technology
+                </option>
+                <option value="Electronics">Electronics</option>
+              </select>
+            </div>
 
-        <div class="form-group">
-          <label>Parent Phone</label>
-          <input type="text" id="parentPhone" />
-        </div>
+            <div class="input-group">
+              <label>Academic Year</label>
+              <select id="year">
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3" selected>3rd Year</option>
+                <option value="4">4th Year</option>
+              </select>
+            </div>
 
-        <div class="form-group">
-          <label>Address</label>
-          <input type="text" id="address" />
-        </div>
+            <div class="input-group">
+              <label>Date of Birth</label>
+              <input type="date" id="dob" />
+            </div>
 
-        <div class="form-group">
-          <label>Date of Birth</label>
-          <input type="date" id="dob" />
-        </div>
+            <div class="input-group"></div>
 
-        <div class="form-group">
-          <label>Department</label>
-          <input type="text" id="department" />
-        </div>
+            <div
+              class="input-group full-width"
+              style="
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 1px solid var(--border-color);
+              "
+            >
+              <h3 style="margin: 0; color: var(--text-main); font-size: 1.1rem">
+                Guardian Information
+              </h3>
+            </div>
 
-        <div class="form-group">
-          <label>Year</label>
-          <select id="year">
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4">4</option>
-          </select>
-        </div>
+            <div class="input-group">
+              <label>Parent/Guardian Name</label>
+              <input type="text" id="parent" placeholder="Name" />
+            </div>
 
-        <div class="buttons">
-          <button type="submit" class="save">Save Student</button>
+            <div class="input-group">
+              <label>Emergency Contact</label>
+              <input type="tel" id="parentPhone" placeholder="+91" />
+            </div>
 
-          <button type="button" class="cancel" onclick="goBack()">
-            Cancel
-          </button>
-        </div>
-      </form>
+            <div class="input-group full-width">
+              <label>Residential Address</label>
+              <input
+                type="text"
+                id="address"
+                placeholder="Full permanent address..."
+              />
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <button
+              type="button"
+              class="btn btn-cancel"
+              onclick="window.location.href = 'students.html'"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-save">
+              <i class="ri-user-add-line"></i> Save Student Record
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <script>
-      /* Submit form */
+      // Load Theme dynamically
+      const theme = localStorage.getItem("dashboard_theme") || "light";
+      document.body.setAttribute("data-theme", theme);
 
+      // Submit Form Logic
       document
         .getElementById("studentForm")
         .addEventListener("submit", async function (e) {
           e.preventDefault();
+
+          const btn = document.querySelector(".btn-save");
+          btn.innerHTML = `<i class="ri-loader-4-line ri-spin"></i> Saving...`;
+          btn.disabled = true;
 
           const student = {
             name: document.getElementById("name").value,
@@ -159,27 +343,36 @@
             address: document.getElementById("address").value,
             date_of_birth: document.getElementById("dob").value,
             department: document.getElementById("department").value,
-            year: document.getElementById("year").value,
+            year: parseInt(document.getElementById("year").value),
           };
 
-          await fetch("http://localhost:5000/api/students", {
-            method: "POST",
+          try {
+            const res = await fetch("http://localhost:5000/api/students", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(student),
+            });
 
-            headers: {
-              "Content-Type": "application/json",
-            },
+            const data = await res.json();
 
-            body: JSON.stringify(student),
-          });
+            if (!res.ok) {
+              alert(
+                data.message ||
+                  "Failed to add student. Check if Roll Number already exists.",
+              );
+              btn.innerHTML = `<i class="ri-user-add-line"></i> Save Student Record`;
+              btn.disabled = false;
+              return;
+            }
 
-          alert("Student added successfully");
-
-          window.location.href = "students.html";
+            window.location.href = "students.html"; // Redirect back on success
+          } catch (err) {
+            console.error(err);
+            alert("Server connection error. Is backend running?");
+            btn.innerHTML = `<i class="ri-user-add-line"></i> Save Student Record`;
+            btn.disabled = false;
+          }
         });
-
-      function goBack() {
-        window.location.href = "students.html";
-      }
     </script>
   </body>
 </html>
