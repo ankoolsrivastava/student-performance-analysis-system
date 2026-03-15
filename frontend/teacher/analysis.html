@@ -4,11 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>System Analysis | Academic Command</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
     />
+
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 
@@ -22,19 +24,28 @@
         --body-font: "Inter", sans-serif;
       }
 
+      [data-theme="dark"] {
+        --bg-color: #0b0f19;
+        --card-bg: #1a1f2e;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border-color: #2a3142;
+      }
+
       body {
         margin: 0;
         font-family: var(--body-font);
         background: var(--bg-color);
+        color: var(--text-main);
         display: flex;
         height: 100vh;
         overflow: hidden;
-        color: var(--text-main);
+        transition: 0.3s;
       }
 
-      /* --- FIXED SIDEBAR --- */
+      /* --- SIDEBAR --- */
       .sidebar {
-        width: 260px;
+        width: 280px;
         background: var(--first-color);
         color: white;
         display: flex;
@@ -43,11 +54,10 @@
         box-shadow: 4px 0 20px rgba(0, 0, 0, 0.05);
         z-index: 20;
       }
-      .sidebar h2 {
-        text-align: center;
-        padding: 30px 20px;
-        font-size: 1.6rem;
-        font-weight: 700;
+      .sidebar-header {
+        padding: 30px;
+        font-size: 1.5rem;
+        font-weight: 800;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         margin-bottom: 20px;
       }
@@ -55,66 +65,64 @@
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 14px 20px;
+        padding: 14px 25px;
         margin: 4px 16px;
-        color: rgba(255, 255, 255, 0.8);
+        color: rgba(255, 255, 255, 0.7);
         text-decoration: none;
         font-weight: 500;
-        border-radius: 10px;
+        border-radius: 12px;
         transition: 0.3s;
-      }
-      .sidebar a i {
-        font-size: 1.2rem;
       }
       .sidebar a:hover,
       .sidebar a.active {
         background: rgba(255, 255, 255, 0.15);
         color: white;
-        transform: translateX(4px);
       }
 
-      /* --- MAIN CONTENT --- */
+      /* --- CONTENT --- */
       .content {
         flex-grow: 1;
         padding: 40px;
         overflow-y: auto;
       }
-      .header {
-        margin-bottom: 30px;
+
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 35px;
       }
-      .header h1 {
-        margin: 0;
+      .topbar h1 {
         font-size: 2rem;
-        font-weight: 700;
-      }
-      .header p {
-        color: var(--text-muted);
-        margin-top: 5px;
+        font-weight: 800;
+        margin: 0;
       }
 
       /* --- STAT CARDS --- */
       .stats-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
+        gap: 24px;
         margin-bottom: 30px;
       }
       .stat-card {
         background: var(--card-bg);
-        padding: 20px;
-        border-radius: 16px;
+        padding: 24px;
+        border-radius: 20px;
         border: 1px solid var(--border-color);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
       }
       .stat-card h4 {
         margin: 0;
         font-size: 0.85rem;
         color: var(--text-muted);
         text-transform: uppercase;
+        letter-spacing: 1px;
       }
       .stat-card p {
         margin: 10px 0 0;
-        font-size: 1.8rem;
-        font-weight: 700;
+        font-size: 2rem;
+        font-weight: 800;
         color: var(--text-main);
       }
 
@@ -122,93 +130,119 @@
       .main-grid {
         display: grid;
         grid-template-columns: 1.6fr 1fr;
-        gap: 25px;
+        gap: 24px;
       }
       .panel {
         background: var(--card-bg);
-        padding: 25px;
-        border-radius: 16px;
+        padding: 30px;
+        border-radius: 24px;
         border: 1px solid var(--border-color);
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
       }
       .panel h3 {
         margin-top: 0;
-        font-size: 1.1rem;
+        font-size: 1.2rem;
+        font-weight: 700;
         display: flex;
         align-items: center;
         gap: 10px;
+        margin-bottom: 20px;
       }
 
       table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 15px;
       }
       th {
         text-align: left;
         color: var(--text-muted);
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         text-transform: uppercase;
-        padding: 12px 10px;
+        padding: 12px;
         border-bottom: 1px solid var(--border-color);
+        letter-spacing: 0.5px;
       }
       td {
-        padding: 15px 10px;
+        padding: 16px 12px;
         border-bottom: 1px solid var(--border-color);
-        font-size: 0.9rem;
+        font-size: 0.95rem;
+        font-weight: 500;
       }
 
       .badge-critical {
         background: rgba(239, 68, 68, 0.1);
         color: #ef4444;
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 8px;
+        font-weight: 800;
         font-size: 0.7rem;
       }
+
       .chart-wrap {
-        height: 300px;
-        margin-top: 20px;
+        height: 320px;
+        position: relative;
+      }
+
+      /* Profile Dropdown logic */
+      .profile-btn {
+        background: var(--card-bg);
+        padding: 6px 15px 6px 6px;
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        border: 1px solid var(--border-color);
+      }
+      .profile-btn img {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
       }
     </style>
   </head>
   <body>
     <aside class="sidebar">
-      <h2>Teacher</h2>
-      <a href="dashboard.html" id="nav-dash"
-        ><i class="ri-dashboard-line"></i> Dashboard</a
-      >
-      <a href="students.html" id="nav-stud"
-        ><i class="ri-group-line"></i> Students</a
-      >
-      <a href="marks.html" id="nav-marks"
-        ><i class="ri-file-edit-line"></i> Marks Entry</a
-      >
-      <a href="attendance.html?tab=report" id="nav-att"
+      <div class="sidebar-header">
+        <i class="ri-graduation-cap-fill"></i> Academic
+      </div>
+      <a href="dashboard.html"><i class="ri-dashboard-line"></i> Dashboard</a>
+      <a href="students.html"><i class="ri-group-line"></i> Students</a>
+      <a href="marks.html"><i class="ri-file-edit-line"></i> Marks Entry</a>
+      <a href="attendance.html"
         ><i class="ri-calendar-check-line"></i> Attendance</a
       >
-      <a href="analysis.html" id="nav-perf" class="active"
+      <a href="analysis.html" class="active"
         ><i class="ri-bar-chart-box-line"></i> Performance</a
       >
     </aside>
 
     <main class="content">
-      <header class="header">
-        <h1>Predictive Analysis</h1>
-        <p>Data-driven insights into class health and risk factors.</p>
+      <header class="topbar">
+        <div>
+          <h1>Predictive Analysis</h1>
+          <p style="color: var(--text-muted); margin: 5px 0 0">
+            Intelligence-driven student risk tracking.
+          </p>
+        </div>
+        <div class="profile-btn">
+          <img id="avatar" src="" alt="P" />
+          <span id="teacherName" style="font-weight: 700; font-size: 0.9rem"
+            >Teacher</span
+          >
+        </div>
       </header>
 
       <div class="stats-grid">
         <div class="stat-card">
           <h4>Class Strength</h4>
-          <p id="classStrength">--</p>
+          <p id="classStrength">0</p>
         </div>
         <div class="stat-card">
           <h4>Average Mastery</h4>
-          <p id="avgMastery">--%</p>
+          <p id="avgMastery">0%</p>
         </div>
-        <div class="stat-card" style="border-left: 4px solid #ef4444">
-          <h4>High Risk Cases</h4>
+        <div class="stat-card" style="border-left: 5px solid #ef4444">
+          <h4>At-Risk Students</h4>
           <p id="riskCount" style="color: #ef4444">0</p>
         </div>
       </div>
@@ -216,26 +250,35 @@
       <div class="main-grid">
         <div class="panel">
           <h3>
-            <i class="ri-error-warning-fill" style="color: #ef4444"></i> Risk
+            <i class="ri-radar-line" style="color: #ef4444"></i> Risk
             Intelligence Table
           </h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Student Identity</th>
-                <th>Academics</th>
-                <th>Attendance</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="riskTable">
-              <tr>
-                <td colspan="4" style="text-align: center; padding: 30px">
-                  Processing analysis...
-                </td>
-              </tr>
-            </tbody>
-          </table>
+          <div style="overflow-x: auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Student Identity</th>
+                  <th>Avg Marks</th>
+                  <th>Attendance</th>
+                  <th>Risk Level</th>
+                </tr>
+              </thead>
+              <tbody id="riskTable">
+                <tr>
+                  <td
+                    colspan="4"
+                    style="
+                      text-align: center;
+                      padding: 40px;
+                      color: var(--text-muted);
+                    "
+                  >
+                    Scanning records...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         <div class="panel">
@@ -249,11 +292,32 @@
           <div class="chart-wrap">
             <canvas id="distChart"></canvas>
           </div>
+          <p
+            style="
+              font-size: 0.8rem;
+              color: var(--text-muted);
+              margin-top: 20px;
+              text-align: center;
+            "
+          >
+            Visualization of subjects with highest failure frequency.
+          </p>
         </div>
       </div>
     </main>
 
     <script>
+      // Load Theme & Session
+      const theme = localStorage.getItem("dashboard_theme") || "light";
+      document.body.setAttribute("data-theme", theme);
+
+      const teacher = JSON.parse(localStorage.getItem("teacher") || "{}");
+      if (teacher.name) {
+        document.getElementById("teacherName").innerText = teacher.name;
+        document.getElementById("avatar").src =
+          `https://ui-avatars.com/api/?name=${encodeURIComponent(teacher.name)}&background=4338ca&color=fff&bold=true`;
+      }
+
       async function runAnalysis() {
         try {
           const [students, averages, risk] = await Promise.all([
@@ -268,43 +332,65 @@
 
           document.getElementById("classStrength").innerText = students.length;
           document.getElementById("riskCount").innerText = risk.length;
+
           const totalAvg =
-            averages.reduce(
-              (acc, curr) => acc + Number(curr.average_marks),
-              0,
-            ) / averages.length;
-          document.getElementById("avgMastery").innerText = totalAvg.toFixed(1);
+            averages.length > 0
+              ? averages.reduce(
+                  (acc, curr) => acc + Number(curr.average_marks),
+                  0,
+                ) / averages.length
+              : 0;
+          document.getElementById("avgMastery").innerText =
+            totalAvg.toFixed(1) + "%";
 
           const tbody = document.getElementById("riskTable");
           if (risk.length === 0) {
             tbody.innerHTML =
-              '<tr><td colspan="4" style="text-align:center; padding:40px; color:var(--text-muted);">No critical risks detected. All students are stable.</td></tr>';
+              '<tr><td colspan="4" style="text-align:center; padding:40px; color:var(--text-muted);">No high-risk students detected.</td></tr>';
           } else {
             tbody.innerHTML = risk
               .map(
                 (s) => `
               <tr>
-                <td style="font-weight:600;">${s.name}<br><small style="color:var(--text-muted)">${s.roll_number}</small></td>
-                <td style="color:#ef4444; font-weight:700;">${s.current_avg_marks}%</td>
-                <td style="color:#ef4444; font-weight:700;">${s.current_att_percentage}%</td>
+                <td>
+                    <div style="font-weight:700; color: var(--text-main);">${s.name}</div>
+                    <div style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">${s.roll_number}</div>
+                </td>
+                <td style="color:#ef4444; font-weight:800;">${s.current_avg_marks}%</td>
+                <td style="color:#ef4444; font-weight:800;">${s.current_att_percentage}%</td>
                 <td><span class="badge-critical">CRITICAL</span></td>
               </tr>`,
               )
               .join("");
           }
 
-          const subRes = await fetch(
-            "http://localhost:5000/api/analysis/subjects",
+          // Pie Chart: Failure concentration by subject
+          const weakRes = await fetch(
+            "http://localhost:5000/api/analysis/weak-students",
           );
-          const subData = await subRes.json();
+          const weakData = await weakRes.json();
+
+          // Count failures per subject
+          const failureCounts = {};
+          weakData.forEach((student) => {
+            student.failures.forEach((fail) => {
+              failureCounts[fail.subject] =
+                (failureCounts[fail.subject] || 0) + 1;
+            });
+          });
+
+          const labels = Object.keys(failureCounts);
+          const dataPoints = Object.values(failureCounts);
+
+          const isDark = document.body.getAttribute("data-theme") === "dark";
 
           new Chart(document.getElementById("distChart"), {
             type: "doughnut",
             data: {
-              labels: subData.map((s) => s.subject_name),
+              labels: labels.length ? labels : ["No Failures Recorded"],
               datasets: [
                 {
-                  data: subData.map((s) => (s.average_marks < 45 ? 20 : 5)),
+                  data: dataPoints.length ? dataPoints : [1],
                   backgroundColor: [
                     "#6366f1",
                     "#ef4444",
@@ -313,18 +399,30 @@
                     "#a855f7",
                     "#3b82f6",
                   ],
+                  borderWidth: isDark ? 2 : 0,
+                  borderColor: isDark ? "#1a1f2e" : "#fff",
                 },
               ],
             },
             options: {
               maintainAspectRatio: false,
-              plugins: { legend: { position: "bottom" } },
+              cutout: "70%",
+              plugins: {
+                legend: {
+                  position: "bottom",
+                  labels: {
+                    color: isDark ? "#94a3b8" : "#2b3674",
+                    font: { family: "Inter", weight: 600 },
+                  },
+                },
+              },
             },
           });
         } catch (e) {
           console.error("Analysis Failed", e);
         }
       }
+
       runAnalysis();
     </script>
   </body>

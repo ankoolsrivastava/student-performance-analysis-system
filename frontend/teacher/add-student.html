@@ -22,6 +22,7 @@
         --border-color: #eef2f6;
         --body-font: "Inter", sans-serif;
         --input-bg: #f8fafc;
+        --error-color: #ef4444;
       }
 
       [data-theme="dark"] {
@@ -45,20 +46,17 @@
         padding: 40px 20px;
         transition: background 0.3s;
       }
-
       .container {
         width: 100%;
         max-width: 800px;
       }
 
-      /* Header & Back Button */
       .header-area {
         display: flex;
         align-items: center;
         gap: 15px;
         margin-bottom: 30px;
       }
-
       .btn-back {
         background: var(--card-bg);
         border: 1px solid var(--border-color);
@@ -73,20 +71,17 @@
         font-weight: 600;
         transition: 0.3s;
       }
-
       .btn-back:hover {
         background: var(--first-color);
         color: white;
         border-color: var(--first-color);
       }
-
       h1 {
         font-size: 1.8rem;
         font-weight: 700;
         margin: 0;
       }
 
-      /* Card & Form Styles */
       .card {
         background: var(--card-bg);
         border: 1px solid var(--border-color);
@@ -94,15 +89,12 @@
         padding: 40px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
       }
-
       .form-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 24px;
         margin-bottom: 30px;
       }
-
-      /* Full width for address */
       .full-width {
         grid-column: 1 / -1;
       }
@@ -111,8 +103,8 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
+        position: relative;
       }
-
       .input-group label {
         font-size: 0.85rem;
         font-weight: 600;
@@ -120,7 +112,6 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
       }
-
       .input-group input,
       .input-group select {
         padding: 14px;
@@ -131,18 +122,29 @@
         font-size: 0.95rem;
         font-family: var(--body-font);
         outline: none;
-        transition:
-          border-color 0.2s,
-          box-shadow 0.2s;
+        transition: 0.2s;
+        width: 100%;
+        box-sizing: border-box;
       }
-
       .input-group input:focus,
       .input-group select:focus {
         border-color: var(--first-color);
         box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
       }
 
-      /* Buttons */
+      /* Validation styling */
+      .input-group input:invalid:focus {
+        border-color: var(--error-color);
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+      }
+      .error-msg {
+        color: var(--error-color);
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: none;
+        margin-top: -4px;
+      }
+
       .action-buttons {
         display: flex;
         justify-content: flex-end;
@@ -151,7 +153,6 @@
         padding-top: 25px;
         border-top: 1px solid var(--border-color);
       }
-
       .btn {
         padding: 14px 28px;
         border-radius: 12px;
@@ -164,36 +165,38 @@
         transition: 0.2s;
         border: none;
       }
-
       .btn-cancel {
         background: transparent;
         color: var(--text-muted);
         border: 1px solid var(--border-color);
       }
-
       .btn-cancel:hover {
         background: var(--border-color);
         color: var(--text-main);
       }
-
       .btn-save {
         background: var(--first-color);
         color: white;
         box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
       }
-
       .btn-save:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
       }
 
-      @media (max-width: 768px) {
-        .form-grid {
-          grid-template-columns: 1fr;
-        }
-        .card {
-          padding: 25px;
-        }
+      .btn-icon {
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        color: var(--first-color);
+        border-radius: 12px;
+        padding: 0 16px;
+        cursor: pointer;
+        transition: 0.2s;
+        font-size: 1.2rem;
+      }
+      .btn-icon:hover {
+        background: var(--first-color);
+        color: white;
       }
     </style>
   </head>
@@ -208,7 +211,7 @@
       </div>
 
       <div class="card">
-        <form id="studentForm">
+        <form id="studentForm" novalidate>
           <div class="form-grid">
             <div class="input-group">
               <label>Full Name *</label>
@@ -217,12 +220,32 @@
                 id="name"
                 placeholder="e.g. Vivaan Verma"
                 required
+                pattern="^[A-Za-z]{2,}(?: [A-Za-z]{2,})+$"
+                title="Please enter a valid First and Last name."
               />
+              <div class="error-msg" id="err-name">
+                Please enter a valid First and Last name.
+              </div>
             </div>
 
             <div class="input-group">
               <label>Roll Number *</label>
-              <input type="text" id="roll" placeholder="e.g. BCS302" required />
+              <div style="display: flex; gap: 10px">
+                <input
+                  type="text"
+                  id="roll"
+                  placeholder="e.g. BCS302"
+                  required
+                />
+                <button
+                  type="button"
+                  class="btn-icon"
+                  onclick="fetchNextRollNumber()"
+                  title="Auto-Generate Sequence"
+                >
+                  <i class="ri-magic-line"></i>
+                </button>
+              </div>
             </div>
 
             <div class="input-group">
@@ -232,19 +255,29 @@
                 id="email"
                 placeholder="student@college.edu"
               />
+              <div class="error-msg" id="err-email">
+                Please enter a valid email.
+              </div>
             </div>
 
             <div class="input-group">
-              <label>Phone Number</label>
-              <input type="tel" id="phone" placeholder="+91 98765 43210" />
+              <label>Phone Number (India)</label>
+              <input
+                type="tel"
+                id="phone"
+                placeholder="9876543210"
+                pattern="^[6-9]\d{9}$"
+                maxlength="10"
+              />
+              <div class="error-msg" id="err-phone">
+                Must be a valid 10-digit Indian number.
+              </div>
             </div>
 
             <div class="input-group">
               <label>Department</label>
               <select id="department">
-                <option value="Computer Engineering">
-                  Computer Engineering
-                </option>
+                <option value="Computer Science">Computer Science</option>
                 <option value="Information Technology">
                   Information Technology
                 </option>
@@ -265,9 +298,25 @@
             <div class="input-group">
               <label>Date of Birth</label>
               <input type="date" id="dob" />
+              <div class="error-msg" id="err-dob">
+                Student must be at least 15 years old.
+              </div>
             </div>
 
-            <div class="input-group"></div>
+            <div class="input-group">
+              <label>Blood Group</label>
+              <select id="blood_group">
+                <option value="">Select...</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+              </select>
+            </div>
 
             <div
               class="input-group full-width"
@@ -284,12 +333,26 @@
 
             <div class="input-group">
               <label>Parent/Guardian Name</label>
-              <input type="text" id="parent" placeholder="Name" />
+              <input
+                type="text"
+                id="parent"
+                placeholder="Name"
+                pattern="^[A-Za-z\s]{3,}$"
+              />
             </div>
 
             <div class="input-group">
-              <label>Emergency Contact</label>
-              <input type="tel" id="parentPhone" placeholder="+91" />
+              <label>Emergency Contact (India)</label>
+              <input
+                type="tel"
+                id="parentPhone"
+                placeholder="9876543210"
+                pattern="^[6-9]\d{9}$"
+                maxlength="10"
+              />
+              <div class="error-msg" id="err-parentPhone">
+                Must be a valid 10-digit Indian number.
+              </div>
             </div>
 
             <div class="input-group full-width">
@@ -319,9 +382,94 @@
     </div>
 
     <script>
-      // Load Theme dynamically
       const theme = localStorage.getItem("dashboard_theme") || "light";
       document.body.setAttribute("data-theme", theme);
+
+      // Set Max Date for DOB (Must be at least 15 years old)
+      const dobInput = document.getElementById("dob");
+      const today = new Date();
+      const maxDate = new Date(
+        today.getFullYear() - 15,
+        today.getMonth(),
+        today.getDate(),
+      )
+        .toISOString()
+        .split("T")[0];
+      dobInput.setAttribute("max", maxDate);
+
+      // Magic Wand - Auto Generate Roll Number
+      async function fetchNextRollNumber() {
+        const rollInput = document.getElementById("roll");
+        rollInput.value = "Generating...";
+        rollInput.setAttribute("readonly", "true");
+
+        try {
+          const res = await fetch(
+            "http://localhost:5000/api/students/next-roll",
+          );
+
+          if (!res.ok) {
+            alert(
+              `Backend Error: Expected route /next-roll, but got status ${res.status}. Check your studentRoutes.js order!`,
+            );
+            throw new Error("Backend route missing or failed");
+          }
+
+          const data = await res.json();
+          rollInput.value = data.nextRoll || "";
+        } catch (err) {
+          console.error("Auto-generate failed:", err);
+          rollInput.value = "";
+          if (err.message === "Failed to fetch") {
+            alert(
+              "Cannot reach the backend server. Is it running on port 5000?",
+            );
+          }
+        } finally {
+          rollInput.removeAttribute("readonly");
+        }
+      }
+
+      fetchNextRollNumber();
+
+      // Custom Validation Checker
+      function validateForm() {
+        let isValid = true;
+        document
+          .querySelectorAll(".error-msg")
+          .forEach((el) => (el.style.display = "none"));
+
+        const name = document.getElementById("name");
+        if (!name.value.match(/^[A-Za-z]{2,}(?: [A-Za-z]{2,})+$/)) {
+          document.getElementById("err-name").style.display = "block";
+          isValid = false;
+        }
+
+        const email = document.getElementById("email");
+        if (email.value && !email.checkValidity()) {
+          document.getElementById("err-email").style.display = "block";
+          isValid = false;
+        }
+
+        const phone = document.getElementById("phone");
+        if (phone.value && !phone.value.match(/^[6-9]\d{9}$/)) {
+          document.getElementById("err-phone").style.display = "block";
+          isValid = false;
+        }
+
+        const parentPhone = document.getElementById("parentPhone");
+        if (parentPhone.value && !parentPhone.value.match(/^[6-9]\d{9}$/)) {
+          document.getElementById("err-parentPhone").style.display = "block";
+          isValid = false;
+        }
+
+        if (dobInput.value && dobInput.value > maxDate) {
+          document.getElementById("err-dob").style.display = "block";
+          isValid = false;
+        }
+
+        return isValid;
+      }
 
       // Submit Form Logic
       document
@@ -329,21 +477,26 @@
         .addEventListener("submit", async function (e) {
           e.preventDefault();
 
+          // Run validation first!
+          if (!validateForm()) return;
+
           const btn = document.querySelector(".btn-save");
           btn.innerHTML = `<i class="ri-loader-4-line ri-spin"></i> Saving...`;
           btn.disabled = true;
 
           const student = {
-            name: document.getElementById("name").value,
-            roll_number: document.getElementById("roll").value,
-            email: document.getElementById("email").value,
-            phone: document.getElementById("phone").value,
-            parent_name: document.getElementById("parent").value,
-            parent_phone: document.getElementById("parentPhone").value,
-            address: document.getElementById("address").value,
-            date_of_birth: document.getElementById("dob").value,
+            name: document.getElementById("name").value.trim(),
+            roll_number: document.getElementById("roll").value.trim(),
+            email: document.getElementById("email").value.trim() || null,
+            phone: document.getElementById("phone").value.trim() || null,
+            parent_name: document.getElementById("parent").value.trim() || null,
+            parent_phone:
+              document.getElementById("parentPhone").value.trim() || null,
+            address: document.getElementById("address").value.trim() || null,
+            date_of_birth: document.getElementById("dob").value || null,
             department: document.getElementById("department").value,
             year: parseInt(document.getElementById("year").value),
+            blood_group: document.getElementById("blood_group").value || null,
           };
 
           try {
@@ -354,7 +507,6 @@
             });
 
             const data = await res.json();
-
             if (!res.ok) {
               alert(
                 data.message ||
@@ -364,8 +516,7 @@
               btn.disabled = false;
               return;
             }
-
-            window.location.href = "students.html"; // Redirect back on success
+            window.location.href = "students.html";
           } catch (err) {
             console.error(err);
             alert("Server connection error. Is backend running?");

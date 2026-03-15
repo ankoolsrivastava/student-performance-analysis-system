@@ -16,5 +16,5 @@ router.get("/weak-details", analysisController.weakStudentsDetail);
 router.get("/defaulters", analysisController.attendanceDefaulters);
 router.get("/pass-ratio", analysisController.passFailRatio);
 router.get("/at-risk", analysisController.atRiskStudents);
-
+router.get("/trend", analysisController.getTrendData);
 module.exports = router;

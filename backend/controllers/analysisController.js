@@ -1,6 +1,72 @@
 const pool = require("../db");
 
-/* Average marks per student */
+/* ================= 1. CLASS TREND AVERAGES (For Dashboard Chart) ================= */
+exports.getTrendData = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT exam_type, ROUND(AVG(marks), 1) as avg_marks 
+      FROM marks 
+      GROUP BY exam_type
+      ORDER BY 
+        CASE 
+          WHEN exam_type = 'Unit Test 1' THEN 1
+          WHEN exam_type = 'Unit Test 2' THEN 2
+          WHEN exam_type = 'End Sem' THEN 3
+          ELSE 4 
+        END ASC
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Trend Error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/* ================= 2. FILTERED CLASS STANDINGS (The Performance Report Tab Fix) ================= */
+/* ================= 2. FILTERED CLASS STANDINGS (Fixed Type Error) ================= */
+exports.getFilteredClassStandings = async (req, res) => {
+  const { exam_type, subject_id } = req.query;
+
+  try {
+    const result = await pool.query(
+      `
+      SELECT 
+          s.student_id, 
+          s.name, 
+          s.roll_number,
+          COALESCE(MAX(m.marks), null) as academic_progress,
+          COALESCE(stats.done, 0) as assignments_done,
+          COALESCE(stats.total, 0) as assignments_total,
+          CASE 
+            WHEN COALESCE(stats.total, 0) = 0 THEN 0 
+            ELSE ROUND((stats.done::numeric / stats.total::numeric) * 100, 1) 
+          END as assign_completion
+      FROM students s
+      LEFT JOIN marks m ON s.student_id = m.student_id 
+          AND m.exam_type = $1 
+          AND m.subject_id = $2::integer
+      LEFT JOIN (
+          SELECT student_id, subject_id, 
+                 COUNT(*) as total, 
+                 -- FIX: Comparing string 'true' instead of boolean true
+                 COUNT(CASE WHEN status = 'true' OR status = 'Completed' THEN 1 END) as done
+          FROM assignments
+          GROUP BY student_id, subject_id
+      ) stats ON s.student_id = stats.student_id AND stats.subject_id = $2::integer
+      GROUP BY s.student_id, s.name, s.roll_number, stats.done, stats.total
+      ORDER BY s.roll_number ASC
+    `,
+      [exam_type, subject_id],
+    );
+
+    res.json(result.rows);
+  } catch (err) {
+    console.error("🔥 PERFORMANCE REPORT SQL ERROR:", err.message);
+    res.status(500).json({ message: "Server Error", error: err.message });
+  }
+};
+
+/* ================= 3. AVERAGE MARKS PER STUDENT ================= */
 exports.studentAverages = async (req, res) => {
   try {
     const result = await pool.query(`
@@ -12,12 +78,12 @@ exports.studentAverages = async (req, res) => {
     `);
     res.json(result.rows);
   } catch (error) {
-    console.error(error);
+    console.error("Averages Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-/* Top students (limit 5) */
+/* ================= 4. TOP STUDENTS (Leaderboard) ================= */
 exports.topStudents = async (req, res) => {
   const { exam_type } = req.query;
   try {
@@ -46,12 +112,29 @@ exports.topStudents = async (req, res) => {
     const result = await pool.query(query, params);
     res.json(result.rows);
   } catch (error) {
-    console.error(error);
+    console.error("Top Students Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-/* Weak students - THE CORE FIX FOR YOUR NEW UI */
+/* ================= 5. SUBJECT PERFORMANCE AVERAGES ================= */
+exports.subjectAverages = async (req, res) => {
+  try {
+    const result = await pool.query(`
+      SELECT sub.subject_id, sub.subject_name, ROUND(AVG(m.marks),1) AS average_marks
+      FROM subjects sub
+      JOIN marks m ON sub.subject_id = m.subject_id
+      GROUP BY sub.subject_id, sub.subject_name
+      ORDER BY sub.subject_id ASC
+    `);
+    res.json(result.rows);
+  } catch (error) {
+    console.error("Subject Averages Error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+/* ================= 6. WEAK STUDENTS (Basic Failure List) ================= */
 exports.getWeakStudents = async (req, res) => {
   try {
     const query = `
@@ -78,61 +161,13 @@ exports.getWeakStudents = async (req, res) => {
   }
 };
 
-/* Subject performance averages */
-exports.subjectAverages = async (req, res) => {
-  try {
-    const result = await pool.query(`
-      SELECT sub.subject_id, sub.subject_name, ROUND(AVG(m.marks),1) AS average_marks
-      FROM subjects sub
-      JOIN marks m ON sub.subject_id = m.subject_id
-      GROUP BY sub.subject_id, sub.subject_name
-      ORDER BY sub.subject_id ASC
-    `);
-    res.json(result.rows);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-/* Student detailed report */
-exports.studentReport = async (req, res) => {
-  const id = req.params.id;
-  try {
-    const result = await pool.query(
-      `
-      SELECT sub.subject_name, m.marks, m.exam_type
-      FROM marks m
-      JOIN subjects sub ON m.subject_id = sub.subject_id
-      WHERE m.student_id = $1
-      ORDER BY 
-        CASE 
-          WHEN m.exam_type = 'Unit Test 1' THEN 1
-          WHEN m.exam_type = 'Unit Test 2' THEN 2
-          WHEN m.exam_type = 'End Sem' THEN 3
-          ELSE 4 
-        END ASC, 
-        sub.subject_name ASC
-    `,
-      [id],
-    );
-
-    res.json(result.rows);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
-  }
-};
-
-/* Weak students detailed list */
-/* Weak students detailed list */
+/* ================= 7. WEAK STUDENTS DETAILED (Aggregated Strings) ================= */
 exports.weakStudentsDetail = async (req, res) => {
   try {
     const result = await pool.query(`
       SELECT 
           s.roll_number, 
           s.name,
-          -- This line fixes the logical error by adding the Exam Type before the Subject
           STRING_AGG(m.exam_type || ': ' || sub.subject_name || ' (' || m.marks || ')', ', ') AS failed_subjects
       FROM marks m
       JOIN students s ON s.student_id = m.student_id
@@ -143,12 +178,12 @@ exports.weakStudentsDetail = async (req, res) => {
     `);
     res.json(result.rows);
   } catch (error) {
-    console.error(error);
+    console.error("Weak Details Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-/* Attendance Defaulters */
+/* ================= 8. ATTENDANCE DEFAULTERS ================= */
 exports.attendanceDefaulters = async (req, res) => {
   try {
     const result = await pool.query(`
@@ -162,12 +197,12 @@ exports.attendanceDefaulters = async (req, res) => {
     `);
     res.json(result.rows);
   } catch (error) {
-    console.error(error);
+    console.error("Defaulters Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-/* Pass / Fail Ratio */
+/* ================= 9. PASS / FAIL RATIO ================= */
 exports.passFailRatio = async (req, res) => {
   try {
     const result = await pool.query(`
@@ -182,12 +217,12 @@ exports.passFailRatio = async (req, res) => {
     `);
     res.json(result.rows[0]);
   } catch (error) {
-    console.error(error);
+    console.error("Pass/Fail Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-/* At-Risk Students */
+/* ================= 10. AT-RISK STUDENTS (Combo Analysis) ================= */
 exports.atRiskStudents = async (req, res) => {
   try {
     const result = await pool.query(`
@@ -212,12 +247,12 @@ exports.atRiskStudents = async (req, res) => {
     `);
     res.json(result.rows);
   } catch (error) {
-    console.error(error);
+    console.error("At-Risk Error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
-/* Full Academic Profile */
+/* ================= 11. FULL ACADEMIC PROFILE ================= */
 exports.getFullStudentProfile = async (req, res) => {
   try {
     const result = await pool.query(`
@@ -226,7 +261,7 @@ exports.getFullStudentProfile = async (req, res) => {
                 MAX(CASE WHEN m.exam_type = 'Unit Test 1' THEN m.marks END) as ut1,
                 MAX(CASE WHEN m.exam_type = 'Unit Test 2' THEN m.marks END) as ut2,
                 MAX(CASE WHEN m.exam_type = 'End Sem' THEN m.marks END) as end_sem,
-                ROUND((COUNT(CASE WHEN a.status = true THEN 1 END)::numeric / NULLIF(COUNT(a.assignment_id), 0)::numeric) * 100, 1) as assign_completion
+                COALESCE(ROUND((COUNT(CASE WHEN a.status = true THEN 1 END)::numeric / NULLIF(COUNT(a.assignment_id), 0)::numeric) * 100, 1), 0) as assign_completion
             FROM students s
             LEFT JOIN marks m ON s.student_id = m.student_id
             LEFT JOIN assignments a ON s.student_id = a.student_id
@@ -235,52 +270,35 @@ exports.getFullStudentProfile = async (req, res) => {
         `);
     res.json(result.rows);
   } catch (err) {
-    console.error(err);
+    console.error("Full Profile Error:", err);
     res.status(500).send("Server Error");
   }
 };
 
-
-/* Filtered Class Standings for Report Tab */
-exports.getFilteredClassStandings = async (req, res) => {
-  const { exam_type, subject_id } = req.query;
-
-  // This will print in your VS Code terminal when you change the dropdown
-  console.log(
-    `[REPORT API] Fetching Exam: "${exam_type}", Subject ID: "${subject_id}"`,
-  );
-
+/* ================= 12. STUDENT INDIVIDUAL REPORT (Single) ================= */
+exports.studentReport = async (req, res) => {
+  const id = req.params.id;
   try {
     const result = await pool.query(
       `
-      SELECT 
-          s.student_id, 
-          s.name, 
-          s.roll_number,
-          MAX(m.marks) as academic_progress,
-          COALESCE(
-              ROUND(
-                  (COUNT(CASE WHEN a.status = true THEN 1 END)::numeric / 
-                  NULLIF(COUNT(a.assignment_id), 0)::numeric) * 100, 
-              1), 
-          0) as assign_completion
-      FROM students s
-      LEFT JOIN marks m ON s.student_id = m.student_id 
-          AND m.exam_type = $1 
-          AND m.subject_id = $2::integer
-      LEFT JOIN assignments a ON s.student_id = a.student_id 
-          AND a.subject_id = $2::integer
-      GROUP BY s.student_id, s.name, s.roll_number
-      ORDER BY s.roll_number ASC
+      SELECT sub.subject_name, m.marks, m.exam_type
+      FROM marks m
+      JOIN subjects sub ON m.subject_id = sub.subject_id
+      WHERE m.student_id = $1
+      ORDER BY 
+        CASE 
+          WHEN m.exam_type = 'Unit Test 1' THEN 1
+          WHEN m.exam_type = 'Unit Test 2' THEN 2
+          WHEN m.exam_type = 'End Sem' THEN 3
+          ELSE 4 
+        END ASC, 
+        sub.subject_name ASC
     `,
-      [exam_type, subject_id],
+      [id],
     );
-
-    console.log(`[REPORT API] Success! Found ${result.rows.length} rows.`);
     res.json(result.rows);
-  } catch (err) {
-    // This will print the EXACT error in your terminal
-    console.error("🔥 CRITICAL SQL ERROR:", err.message);
-    res.status(500).json({ message: "Server Error", error: err.message });
+  } catch (error) {
+    console.error("Individual Report Error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

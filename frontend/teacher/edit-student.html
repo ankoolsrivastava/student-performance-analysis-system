@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Student Profile | Academic Center</title>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+      :root {
+        --first-color: hsl(263, 64%, 48%);
+        --bg-color: #f4f7fe;
+        --card-bg: #ffffff;
+        --text-main: #2b3674;
+        --text-muted: #a3aed1;
+        --border-color: #eef2f6;
+        --body-font: "Inter", sans-serif;
+        --input-bg: #f8fafc;
+        --error-color: #ef4444;
+      }
+
+      [data-theme="dark"] {
+        --bg-color: #0b0f19;
+        --card-bg: #1a1f2e;
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border-color: #2a3142;
+        --input-bg: #0b0f19;
+      }
+
+      body {
+        margin: 0;
+        font-family: var(--body-font);
+        background: var(--bg-color);
+        color: var(--text-main);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding: 40px 20px;
+        transition: background 0.3s;
+      }
+      .container {
+        width: 100%;
+        max-width: 800px;
+      }
+
+      .header-area {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        margin-bottom: 30px;
+      }
+      .btn-back {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        padding: 10px 15px;
+        border-radius: 10px;
+        cursor: pointer;
+        color: var(--text-main);
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+        transition: 0.3s;
+      }
+      .btn-back:hover {
+        background: var(--first-color);
+        color: white;
+        border-color: var(--first-color);
+      }
+      h1 {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .card {
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 40px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+      }
+
+      .profile-preview {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 30px;
+        padding-bottom: 30px;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .profile-preview img {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--border-color);
+      }
+      .profile-info h2 {
+        margin: 0 0 5px 0;
+        font-size: 1.2rem;
+      }
+      .profile-info p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 30px;
+      }
+      .full-width {
+        grid-column: 1 / -1;
+      }
+
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        position: relative;
+      }
+      .input-group label {
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+      .input-group input,
+      .input-group select {
+        padding: 14px;
+        border: 1px solid var(--border-color);
+        border-radius: 12px;
+        background: var(--input-bg);
+        color: var(--text-main);
+        font-size: 0.95rem;
+        font-family: var(--body-font);
+        outline: none;
+        transition: 0.2s;
+        width: 100%;
+        box-sizing: border-box;
+      }
+      .input-group input:focus,
+      .input-group select:focus {
+        border-color: var(--first-color);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      }
+
+      .input-group input:invalid:focus {
+        border-color: var(--error-color);
+        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+      }
+      .error-msg {
+        color: var(--error-color);
+        font-size: 0.75rem;
+        font-weight: 600;
+        display: none;
+        margin-top: -4px;
+      }
+
+      .action-buttons {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 40px;
+        padding-top: 25px;
+        border-top: 1px solid var(--border-color);
+      }
+      .btn {
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.2s;
+        border: none;
+      }
+      .btn-cancel {
+        background: transparent;
+        color: var(--text-muted);
+        border: 1px solid var(--border-color);
+      }
+      .btn-cancel:hover {
+        background: var(--border-color);
+        color: var(--text-main);
+      }
+      .btn-save {
+        background: var(--first-color);
+        color: white;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+      }
+      .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+      }
+
+      @media (max-width: 768px) {
+        .form-grid {
+          grid-template-columns: 1fr;
+        }
+        .card {
+          padding: 25px;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="header-area">
+        <a href="students.html" class="btn-back"
+          ><i class="ri-arrow-left-line"></i
+        ></a>
+        <h1>Edit Student Profile</h1>
+      </div>
+
+      <div class="card">
+        <div class="profile-preview" id="profilePreview" style="display: none">
+          <img id="previewAvatar" src="" alt="Avatar" />
+          <div class="profile-info">
+            <h2 id="previewName">Loading...</h2>
+            <p id="previewRoll">Roll No</p>
+          </div>
+        </div>
+
+        <form id="editStudentForm" novalidate>
+          <div class="form-grid">
+            <div class="input-group">
+              <label>Full Name *</label>
+              <input
+                type="text"
+                id="name"
+                required
+                pattern="^[A-Za-z]{2,}(?: [A-Za-z]{2,})+$"
+              />
+              <div class="error-msg" id="err-name">
+                Please enter a valid First and Last name.
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Roll Number *</label>
+              <input type="text" id="roll" required />
+            </div>
+
+            <div class="input-group">
+              <label>Email Address</label>
+              <input type="email" id="email" />
+              <div class="error-msg" id="err-email">
+                Please enter a valid email.
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Phone Number (India)</label>
+              <input
+                type="tel"
+                id="phone"
+                pattern="^[6-9]\d{9}$"
+                maxlength="10"
+              />
+              <div class="error-msg" id="err-phone">
+                Must be a valid 10-digit Indian number.
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Department</label>
+              <select id="department">
+                <option value="Computer  Science">Computer Science</option>
+                <option value="Information Technology">
+                  Information Technology
+                </option>
+                <option value="Electronics">Electronics</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label>Academic Year</label>
+              <select id="year">
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+              </select>
+            </div>
+
+            <div class="input-group">
+              <label>Date of Birth</label>
+              <input type="date" id="dob" />
+              <div class="error-msg" id="err-dob">
+                Student must be at least 15 years old.
+              </div>
+            </div>
+
+            <div class="input-group">
+              <label>Blood Group</label>
+              <select id="blood_group">
+                <option value="">Select...</option>
+                <option value="A+">A+</option>
+                <option value="A-">A-</option>
+                <option value="B+">B+</option>
+                <option value="B-">B-</option>
+                <option value="O+">O+</option>
+                <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
+              </select>
+            </div>
+
+            <div
+              class="input-group full-width"
+              style="
+                margin-top: 15px;
+                padding-top: 15px;
+                border-top: 1px solid var(--border-color);
+              "
+            >
+              <h3 style="margin: 0; color: var(--text-main); font-size: 1.1rem">
+                Guardian Information
+              </h3>
+            </div>
+
+            <div class="input-group">
+              <label>Parent/Guardian Name</label>
+              <input type="text" id="parent" pattern="^[A-Za-z\s]{3,}$" />
+            </div>
+
+            <div class="input-group">
+              <label>Emergency Contact (India)</label>
+              <input
+                type="tel"
+                id="parentPhone"
+                pattern="^[6-9]\d{9}$"
+                maxlength="10"
+              />
+              <div class="error-msg" id="err-parentPhone">
+                Must be a valid 10-digit Indian number.
+              </div>
+            </div>
+
+            <div class="input-group full-width">
+              <label>Residential Address</label>
+              <input type="text" id="address" />
+            </div>
+          </div>
+
+          <div class="action-buttons">
+            <button
+              type="button"
+              class="btn btn-cancel"
+              onclick="window.location.href = 'students.html'"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-save">
+              <i class="ri-save-3-line"></i> Update Record
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const theme = localStorage.getItem("dashboard_theme") || "light";
+      document.body.setAttribute("data-theme", theme);
+
+      const params = new URLSearchParams(window.location.search);
+      const studentId = params.get("id");
+
+      // Set Max Date for DOB (15 years ago)
+      const dobInput = document.getElementById("dob");
+      const today = new Date();
+      const maxDate = new Date(
+        today.getFullYear() - 15,
+        today.getMonth(),
+        today.getDate(),
+      )
+        .toISOString()
+        .split("T")[0];
+      dobInput.setAttribute("max", maxDate);
+
+      // 1. Fetch current data when page loads
+      async function loadStudentData() {
+        if (!studentId) {
+          alert("No student ID provided.");
+          window.location.href = "students.html";
+          return;
+        }
+
+        try {
+          const res = await fetch(
+            `http://localhost:5000/api/students/${studentId}`,
+          );
+          if (!res.ok) throw new Error("Student not found");
+
+          const student = await res.json();
+
+          // Populate the preview header
+          document.getElementById("profilePreview").style.display = "flex";
+          document.getElementById("previewName").innerText = student.name;
+          document.getElementById("previewRoll").innerText =
+            student.roll_number;
+          document.getElementById("previewAvatar").src =
+            `https://ui-avatars.com/api/?name=${encodeURIComponent(student.name)}&background=6a7de3&color=fff&size=128`;
+
+          // Populate the form fields
+          document.getElementById("name").value = student.name || "";
+          document.getElementById("roll").value = student.roll_number || "";
+          document.getElementById("email").value = student.email || "";
+          document.getElementById("phone").value = student.phone || "";
+          document.getElementById("parent").value = student.parent_name || "";
+          document.getElementById("parentPhone").value =
+            student.parent_phone || "";
+          document.getElementById("address").value = student.address || "";
+
+          // Smart Dropdowns: If their branch isn't in the default list, add it dynamically!
+          if (student.department) {
+            const deptSelect = document.getElementById("department");
+            let optionExists = Array.from(deptSelect.options).some(
+              (opt) => opt.value === student.department,
+            );
+            if (!optionExists) {
+              deptSelect.add(
+                new Option(student.department, student.department),
+              );
+            }
+            deptSelect.value = student.department;
+          }
+
+          if (student.year)
+            document.getElementById("year").value = student.year;
+          if (student.blood_group)
+            document.getElementById("blood_group").value = student.blood_group;
+
+          // Format Date safely
+          if (student.date_of_birth) {
+            const dateObj = new Date(student.date_of_birth);
+            document.getElementById("dob").value = dateObj
+              .toISOString()
+              .split("T")[0];
+          }
+        } catch (err) {
+          console.error(err);
+          alert("Error loading student data.");
+        }
+      }
+
+      // Validation Logic
+      function validateForm() {
+        let isValid = true;
+        document
+          .querySelectorAll(".error-msg")
+          .forEach((el) => (el.style.display = "none"));
+
+        const name = document.getElementById("name");
+        if (!name.value.match(/^[A-Za-z]{2,}(?: [A-Za-z]{2,})+$/)) {
+          document.getElementById("err-name").style.display = "block";
+          isValid = false;
+        }
+
+        const email = document.getElementById("email");
+        if (email.value && !email.checkValidity()) {
+          document.getElementById("err-email").style.display = "block";
+          isValid = false;
+        }
+
+        const phone = document.getElementById("phone");
+        if (phone.value && !phone.value.match(/^[6-9]\d{9}$/)) {
+          document.getElementById("err-phone").style.display = "block";
+          isValid = false;
+        }
+
+        const parentPhone = document.getElementById("parentPhone");
+        if (parentPhone.value && !parentPhone.value.match(/^[6-9]\d{9}$/)) {
+          document.getElementById("err-parentPhone").style.display = "block";
+          isValid = false;
+        }
+
+        if (dobInput.value && dobInput.value > maxDate) {
+          document.getElementById("err-dob").style.display = "block";
+          isValid = false;
+        }
+
+        return isValid;
+      }
+
+      // 2. Handle the update submission
+      document
+        .getElementById("editStudentForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          // Run strict validation before submitting!
+          if (!validateForm()) return;
+
+          const btn = document.querySelector(".btn-save");
+          btn.innerHTML = `<i class="ri-loader-4-line ri-spin"></i> Updating...`;
+          btn.disabled = true;
+
+          const updatedStudent = {
+            name: document.getElementById("name").value.trim(),
+            roll_number: document.getElementById("roll").value.trim(),
+            email: document.getElementById("email").value.trim() || null,
+            phone: document.getElementById("phone").value.trim() || null,
+            parent_name: document.getElementById("parent").value.trim() || null,
+            parent_phone:
+              document.getElementById("parentPhone").value.trim() || null,
+            address: document.getElementById("address").value.trim() || null,
+            date_of_birth: document.getElementById("dob").value || null,
+            department: document.getElementById("department").value,
+            year: parseInt(document.getElementById("year").value),
+            blood_group: document.getElementById("blood_group").value || null,
+          };
+
+          try {
+            const res = await fetch(
+              `http://localhost:5000/api/students/${studentId}`,
+              {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedStudent),
+              },
+            );
+
+            const data = await res.json();
+
+            if (!res.ok) {
+              alert(
+                data.message ||
+                  "Failed to update student. Is that roll number taken?",
+              );
+              btn.innerHTML = `<i class="ri-save-3-line"></i> Update Record`;
+              btn.disabled = false;
+              return;
+            }
+
+            window.location.href = "students.html";
+          } catch (err) {
+            console.error(err);
+            alert("Server connection error.");
+            btn.innerHTML = `<i class="ri-save-3-line"></i> Update Record`;
+            btn.disabled = false;
+          }
+        });
+
+      // Initialize
+      loadStudentData();
+    </script>
+  </body>
+</html>

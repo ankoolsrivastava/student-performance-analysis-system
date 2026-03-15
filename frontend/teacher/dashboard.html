@@ -6,7 +6,6 @@
     <title>Teacher Dashboard</title>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.1/dist/gsap.min.js"></script>
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
@@ -100,6 +99,7 @@
         padding: 30px 40px;
         overflow-y: auto;
       }
+
       .topbar {
         display: flex;
         justify-content: space-between;
@@ -182,6 +182,7 @@
         visibility: visible;
         transform: translateY(0);
       }
+
       .dropdown a,
       .dropdown button {
         padding: 12px 20px;
@@ -195,6 +196,7 @@
         align-items: center;
         gap: 10px;
         transition: 0.2s;
+        text-decoration: none;
       }
       .dropdown a:hover,
       .dropdown button:hover {
@@ -236,6 +238,7 @@
         color: var(--text-main);
         margin: 8px 0 0;
       }
+
       .card .icon-wrapper {
         position: absolute;
         top: 24px;
@@ -264,6 +267,7 @@
         gap: 24px;
         margin-bottom: 24px;
       }
+
       .panel {
         background: var(--card-bg);
         padding: 24px;
@@ -279,6 +283,7 @@
         justify-content: space-between;
         align-items: center;
       }
+
       .chart-container {
         position: relative;
         height: 300px;
@@ -302,6 +307,7 @@
         text-transform: uppercase;
         font-weight: 600;
       }
+
       .right-align {
         text-align: right;
       }
@@ -309,6 +315,7 @@
         color: #ef4444 !important;
         font-weight: 700;
       }
+
       .badge-danger {
         background: rgba(239, 68, 68, 0.1);
         color: #ef4444;
@@ -370,7 +377,6 @@
               ></i>
             </div>
             <div class="dropdown" id="profileDropdown">
-              <a href="profile.html"><i class="ri-user-line"></i> My Profile</a>
               <button id="themeToggle">
                 <i class="ri-moon-line" id="themeIcon"></i> Toggle Theme
               </button>
@@ -426,7 +432,7 @@
               <i class="ri-bar-chart-line"></i>
             </div>
             <h3>Top Average</h3>
-            <p id="topAverage">0</p>
+            <p id="topAverage">0%</p>
           </div>
           <div
             class="card"
@@ -448,6 +454,7 @@
             <h3>Student Performance Trend</h3>
             <div class="chart-container"><canvas id="trendChart"></canvas></div>
           </div>
+
           <div class="panel">
             <h3>
               Top Performers
@@ -461,6 +468,7 @@
                   font-size: 0.8rem;
                 "
               >
+                <option value="Overall">Overall</option>
                 <option value="End Sem">End Sem</option>
                 <option value="Unit Test 1">Unit Test 1</option>
                 <option value="Unit Test 2">Unit Test 2</option>
@@ -547,12 +555,13 @@
         };
       };
 
-      /* THEME */
+      /* THEME SETUP */
       const applyTheme = (t) => {
         document.body.setAttribute("data-theme", t);
-        if (document.getElementById("themeIcon"))
+        if (document.getElementById("themeIcon")) {
           document.getElementById("themeIcon").className =
             t === "dark" ? "ri-sun-line" : "ri-moon-line";
+        }
         if (subjectChart) {
           subjectChart.options = getChartOptions();
           subjectChart.update();
@@ -565,25 +574,29 @@
 
       let theme = localStorage.getItem("dashboard_theme") || "light";
       applyTheme(theme);
+
       document.getElementById("themeToggle").onclick = () => {
         theme = theme === "light" ? "dark" : "light";
         localStorage.setItem("dashboard_theme", theme);
         applyTheme(theme);
       };
 
-      /* PROFILE */
+      /* PROFILE MENU */
       document.getElementById("profileBtn").onclick = (e) => {
         e.stopPropagation();
         document.getElementById("profileDropdown").classList.toggle("show");
       };
+
       window.onclick = (e) => {
         if (
           !document.getElementById("profileDropdown").contains(e.target) &&
           !document.getElementById("profileBtn").contains(e.target)
-        )
+        ) {
           document.getElementById("profileDropdown").classList.remove("show");
+        }
       };
 
+      /* SESSION CHECK */
       const teacher = JSON.parse(localStorage.getItem("teacher") || "{}");
       if (!teacher.name) {
         window.location.href = "login.html";
@@ -595,29 +608,40 @@
           `https://ui-avatars.com/api/?name=${encodeURIComponent(teacher.name)}&background=6a7de3&color=fff&bold=true`;
       }
 
-      /* DATA FETCHING */
+      /* FETCH DATA */
       async function loadDashboardData() {
         try {
-          const [students, subjects, weak, defaulters, averages, passRatio] =
-            await Promise.all([
-              fetch("http://localhost:5000/api/students").then((r) => r.json()),
-              fetch("http://localhost:5000/api/analysis/subjects").then((r) =>
-                r.json(),
-              ),
-              fetch("http://localhost:5000/api/analysis/weak-students").then(
-                (r) => r.json(),
-              ),
-              fetch("http://localhost:5000/api/analysis/defaulters").then((r) =>
-                r.json(),
-              ),
-              fetch("http://localhost:5000/api/analysis/averages").then((r) =>
-                r.json(),
-              ),
-              fetch("http://localhost:5000/api/analysis/pass-ratio").then((r) =>
-                r.json(),
-              ),
-            ]);
+          const [
+            students,
+            subjects,
+            weak,
+            defaulters,
+            averages,
+            passRatio,
+            trend,
+          ] = await Promise.all([
+            fetch("http://localhost:5000/api/students").then((r) => r.json()),
+            fetch("http://localhost:5000/api/analysis/subjects").then((r) =>
+              r.json(),
+            ),
+            fetch("http://localhost:5000/api/analysis/weak-students").then(
+              (r) => r.json(),
+            ),
+            fetch("http://localhost:5000/api/analysis/defaulters").then((r) =>
+              r.json(),
+            ),
+            fetch("http://localhost:5000/api/analysis/averages").then((r) =>
+              r.json(),
+            ),
+            fetch("http://localhost:5000/api/analysis/pass-ratio").then((r) =>
+              r.json(),
+            ),
+            fetch("http://localhost:5000/api/analysis/trend").then((r) =>
+              r.json(),
+            ), // NEW TREND FETCH
+          ]);
 
+          // Update Top Cards
           document.getElementById("totalStudents").innerText = students.length;
           document.getElementById("subjectsCount").innerText = subjects.length;
           document.getElementById("weakCount").innerText = weak.length;
@@ -628,31 +652,32 @@
               : 0;
           document.getElementById("topAverage").innerText = maxAvg + "%";
 
-          // Defaulters Table
+          // Update Defaulters
           document.getElementById("defaultersTable").innerHTML =
             defaulters.length
               ? defaulters
                   .map(
-                    (s) => `
-            <tr><td>${s.roll_number}</td><td>${s.name}</td><td class="right-align text-danger">${s.attendance_percentage}%</td></tr>
-          `,
+                    (s) =>
+                      `<tr><td>${s.roll_number}</td><td>${s.name}</td><td class="right-align text-danger">${s.attendance_percentage}%</td></tr>`,
                   )
                   .join("")
-              : `<tr><td colspan="3" style="text-align:center">No defaulters</td></tr>`;
+              : `<tr><td colspan="3" style="text-align:center; color: var(--text-muted);">No defaulters</td></tr>`;
 
-          renderCharts(subjects, passRatio);
-          loadTopStudents(); // Leaderboard logic
+          renderCharts(subjects, passRatio, trend);
+          loadTopStudents();
         } catch (e) {
-          console.error(e);
+          console.error("Error loading dashboard data:", e);
         }
       }
 
+      /* TOP STUDENTS LEADERBOARD */
       async function loadTopStudents() {
         const type = document.getElementById("topExamType").value;
         const res = await fetch(
           `http://localhost:5000/api/analysis/top-students?exam_type=${type}`,
         );
         const data = await res.json();
+
         document.getElementById("topStudentsList").innerHTML =
           data
             .map(
@@ -663,10 +688,12 @@
             </div>
         `,
             )
-            .join("") || '<p style="text-align:center">No data found</p>';
+            .join("") ||
+          '<p style="text-align:center; color: var(--text-muted);">No data found</p>';
       }
 
-      function renderCharts(subjects, passRatio) {
+      /* RENDER CHARTS */
+      function renderCharts(subjects, passRatio, trend) {
         // Subject Chart
         const subCtx = document.getElementById("subjectChart").getContext("2d");
         if (subjectChart) subjectChart.destroy();
@@ -697,6 +724,7 @@
                 data: [passRatio.passed, passRatio.failed],
                 backgroundColor: ["#10b981", "#ef4444"],
                 cutout: "70%",
+                borderWidth: 0,
               },
             ],
           },
@@ -707,21 +735,30 @@
           },
         });
 
-        // Trend Chart (Line)
+        // Trend Line Chart (Now Uses Real Data!)
         const trendCtx = document.getElementById("trendChart").getContext("2d");
         if (trendChart) trendChart.destroy();
+
+        // Safety check if trend data is empty
+        const trendLabels =
+          trend && trend.length
+            ? trend.map((t) => t.exam_type)
+            : ["UT 1", "UT 2", "End Sem"];
+        const trendDataPoints =
+          trend && trend.length ? trend.map((t) => t.avg_marks) : [0, 0, 0];
+
         trendChart = new Chart(trendCtx, {
           type: "line",
           data: {
-            labels: ["Unit Test 1", "Unit Test 2", "End Sem"],
+            labels: trendLabels,
             datasets: [
               {
                 label: "Class Average",
-                data: [65, 72, 68],
+                data: trendDataPoints,
                 borderColor: "hsl(263, 64%, 48%)",
                 tension: 0.4,
                 fill: true,
-                backgroundColor: "rgba(79, 70, 229, 0.1)",
+                backgroundColor: "rgba(106, 125, 227, 0.1)",
               },
             ],
           },
